@@ -1,14 +1,22 @@
-CREATE DATABASE IF NOT EXISTS opiskelijahelpdesk
-    CHARACTER SET utf8mb4
-    COLLATE utf8mb4_unicode_ci;
+<?php
 
-USE opiskelijahelpdesk;
+$host = getenv('DB_HOST') ?: 'mysql';
+$port = getenv('DB_PORT') ?: '3306';
+$dbname = getenv('DB_NAME') ?: 'opiskelijahelpdesk';
+$username = getenv('DB_USER') ?: 'helpdesk';
+$password = getenv('DB_PASSWORD') ?: 'helpdesk';
 
-CREATE TABLE IF NOT EXISTS users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    role VARCHAR(50) NOT NULL DEFAULT 'student',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+try {
+    $pdo = new PDO(
+        "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4",
+        $username,
+        $password,
+        [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES => false
+        ]
+    );
+} catch (PDOException $e) {
+    die("Tietokantayhteyttä ei voitu muodostaa.");
+}
