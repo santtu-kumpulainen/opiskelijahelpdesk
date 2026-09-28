@@ -73,6 +73,77 @@ git pull origin main
 git switch -c feature/ticket-1
 ```
 
+## Docker-kehitysympäristö
+
+Projekti käyttää Dockeria PHP-, MariaDB- ja phpMyAdmin-ympäristön suorittamiseen.
+
+### Käynnistys
+
+Projektin juuressa suorita:
+
+```bash
+docker compose up -d --build
+```
+
+Containerien tilan voi tarkistaa:
+
+```bash
+docker compose ps
+```
+
+### Palvelut
+
+| Palvelu | Osoite |
+|---|---|
+| PHP-sovellus | http://localhost:8000 |
+| phpMyAdmin | http://localhost:8082 |
+| MariaDB | localhost:3307 |
+
+PHP-sovellus käyttää Docker-verkon kautta MariaDB-palvelua osoitteella:
+
+```text
+mysql:3306
+```
+
+Host-koneelta MariaDB on saatavilla portissa `3307`.
+
+### phpMyAdmin
+
+phpMyAdminiin kirjaudutaan osoitteessa:
+
+http://localhost:8082
+
+Kirjautumistiedot:
+
+```text
+Server: mysql
+Username: <username>
+Password: <password>
+```
+
+### Tietokannan alustaminen
+
+Tietokanta alustetaan automaattisesti Dockerin ensimmäisen käynnistyksen yhteydessä tiedostosta:
+
+```text
+database/init.sql
+```
+
+Tietokannan data tallennetaan Docker-volumelle:
+
+```text
+helpdesk_mysql_data
+```
+
+Jos tietokanta halutaan alustaa kokonaan uudelleen kehityksen aikana:
+
+```bash
+docker compose down -v
+docker compose up -d --build
+```
+
+Huomio: `docker compose down -v` poistaa tietokannan Docker-volumen ja samalla kaikki siihen tallennetut tiedot.
+
 ## Status
 
 Projekti on kehitysvaiheessa.

@@ -20,6 +20,7 @@ Thumbs.db
 
 # PHP
 /vendor/
+vendor/
 
 # Local database dumps
 *.sql.bak

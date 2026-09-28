@@ -1,0 +1,48 @@
+services:
+
+  php:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: opiskelijahelpdesk-php
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    ports:
+      - "8000:80"
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: opiskelijahelpdesk
+      DB_USER: helpdesk
+      DB_PASSWORD: helpdesk
+
+  mysql:
+    image: mariadb:11
+    container_name: opiskelijahelpdesk-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: opiskelijahelpdesk
+      MYSQL_USER: helpdesk
+      MYSQL_PASSWORD: helpdesk
+    ports:
+      - "3307:3306"
+    volumes:
+      - helpdesk_mysql_data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: opiskelijahelpdesk-phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+    ports:
+      - "8082:80"
+
+volumes:
+  helpdesk_mysql_data:
