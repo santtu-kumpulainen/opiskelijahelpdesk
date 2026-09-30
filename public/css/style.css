@@ -207,6 +207,76 @@ body {
 }
 
 
+.ticket-detail {
+    max-width: 850px;
+    margin: 50px auto;
+    background: #fff;
+    border: 1px solid #ddd;
+    padding: 30px;
+}
+
+.ticket-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 20px;
+}
+
+.ticket-detail-header h1 {
+    margin: 5px 0 0;
+}
+
+.ticket-number {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+}
+
+.ticket-status {
+    padding: 8px 14px;
+    border: 1px solid #ccc;
+    white-space: nowrap;
+}
+
+.ticket-description {
+    padding: 25px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.ticket-description h2 {
+    margin-top: 0;
+}
+
+.ticket-description p {
+    line-height: 1.7;
+}
+
+.ticket-info {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    padding: 25px 0;
+}
+
+.ticket-info div {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.ticket-info strong {
+    font-size: 14px;
+}
+
+.ticket-info span {
+    color: #555;
+}
+
+.ticket-actions {
+    padding-top: 10px;
+}
 
 
 
@@ -240,6 +310,19 @@ body {
     .ticket-card-header {
         flex-direction: column;
         gap: 10px;
+    }
+
+    .ticket-detail {
+        margin: 30px 0;
+        padding: 20px;
+    }
+
+    .ticket-detail-header {
+        flex-direction: column;
+    }
+
+    .ticket-info {
+        grid-template-columns: 1fr;
     }
 
     .form-section {
