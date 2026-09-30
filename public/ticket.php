@@ -18,10 +18,7 @@ if (
 }
 
 /*
- * Haetaan tiketti.
- *
- * assigned_to = tiketin käsittelijän käyttäjän ID
- * support_name = käsittelijän nimi
+ * Haetaan tiketti
  */
 $stmt = $pdo->prepare(
     'SELECT
@@ -66,7 +63,8 @@ if (!$ticket) {
 
 /*
  * Opiskelija saa nähdä vain omat tikettinsä.
- * Tukihenkilö ja ylläpitäjä voivat nähdä tikettejä.
+ *
+ * Tukihenkilö ja ylläpitäjä voivat nähdä kaikki tiketit.
  */
 if (
     $_SESSION['role'] === 'student' &&
@@ -80,20 +78,26 @@ $errors = [];
 $commentText = '';
 
 /*
- * Lisätään uusi kommentti
+ * Kommentin / tukihenkilön vastauksen käsittely
  */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $commentText = trim($_POST['comment'] ?? '');
 
+    /*
+     * Tarkistetaan kommentti
+     */
     if ($commentText === '') {
-        $errors[] = 'Kommentti ei voi olla tyhjä.';
+        $errors[] = 'Vastaus ei voi olla tyhjä.';
     }
 
     if (mb_strlen($commentText) > 5000) {
-        $errors[] = 'Kommentti voi sisältää enintään 5000 merkkiä.';
+        $errors[] = 'Vastaus voi sisältää enintään 5000 merkkiä.';
     }
 
+    /*
+     * Jos virheitä ei ole, tallennetaan kommentti.
+     */
     if (empty($errors)) {
 
         $stmt = $pdo->prepare(
@@ -109,10 +113,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $commentText
         ]);
 
+        /*
+         * Jos tukihenkilö vastaa, tiketti siirtyy
+         * käsittelyssä-tilaan, jos se on vielä uusi.
+         */
+        if (
+            $_SESSION['role'] === 'support' &&
+            $ticket['status'] === 'new'
+        ) {
+
+            $stmt = $pdo->prepare(
+                'UPDATE tickets
+                 SET status = ?
+                 WHERE id = ?'
+            );
+
+            $stmt->execute([
+                'in_progress',
+                $ticket['id']
+            ]);
+        }
+
         header(
             'Location: ticket.php?id=' .
             urlencode($ticket['id']) .
-            '#comments'
+            '&reply=1#comments'
         );
 
         exit;
@@ -120,13 +145,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 /*
- * Haetaan tiketin kommentit
+ * Haetaan kaikki kommentit
  */
 $stmt = $pdo->prepare(
     'SELECT
         comments.id,
         comments.comment,
         comments.created_at,
+
         users.name AS user_name,
         users.role AS user_role
 
@@ -163,6 +189,15 @@ $priorityLabels = [
     'normal' => 'Normaali',
     'high' => 'Korkea',
     'urgent' => 'Kiireellinen'
+];
+
+/*
+ * Roolien nimet
+ */
+$roleLabels = [
+    'student' => 'Opiskelija',
+    'support' => 'Tukihenkilö',
+    'admin' => 'Ylläpitäjä'
 ];
 
 ?>
@@ -220,9 +255,7 @@ $priorityLabels = [
                     Omat tiketit
                 </a>
 
-            <?php elseif (
-                $_SESSION['role'] === 'support'
-            ): ?>
+            <?php elseif ($_SESSION['role'] === 'support'): ?>
 
                 <a href="support-dashboard.php">
                     Support Dashboard
@@ -239,6 +272,7 @@ $priorityLabels = [
     </div>
 
 </header>
+
 
 <main>
 
@@ -410,20 +444,31 @@ $priorityLabels = [
                 </div>
 
 
+                <!-- Kommentit ja vastaukset -->
+
                 <section
                     class="comments-section"
                     id="comments"
                 >
 
                     <h2>
-                        Kommentit
+                        Keskustelu
                     </h2>
+
+
+                    <?php if (isset($_GET['reply']) && $_GET['reply'] === '1'): ?>
+
+                        <div class="form-success">
+                            Vastauksesi tallennettiin onnistuneesti.
+                        </div>
+
+                    <?php endif; ?>
 
 
                     <?php if (empty($comments)): ?>
 
                         <p>
-                            Tiketillä ei ole vielä kommentteja.
+                            Tikettiin ei ole vielä lisätty kommentteja.
                         </p>
 
                     <?php else: ?>
@@ -436,11 +481,22 @@ $priorityLabels = [
 
                                     <div class="comment-header">
 
-                                        <strong>
-                                            <?= htmlspecialchars(
-                                                $comment['user_name']
-                                            ) ?>
-                                        </strong>
+                                        <div>
+
+                                            <strong>
+                                                <?= htmlspecialchars(
+                                                    $comment['user_name']
+                                                ) ?>
+                                            </strong>
+
+                                            <span>
+                                                (<?= htmlspecialchars(
+                                                    $roleLabels[$comment['user_role']]
+                                                    ?? $comment['user_role']
+                                                ) ?>)
+                                            </span>
+
+                                        </div>
 
                                         <span>
                                             <?= htmlspecialchars(
@@ -449,6 +505,7 @@ $priorityLabels = [
                                         </span>
 
                                     </div>
+
 
                                     <p>
                                         <?= nl2br(
@@ -488,42 +545,101 @@ $priorityLabels = [
                     <?php endif; ?>
 
 
-                    <form
-                        method="POST"
-                        action="ticket.php?id=<?= htmlspecialchars($ticket['id']) ?>#comments"
-                        class="comment-form"
-                    >
+                    <?php if ($_SESSION['role'] === 'support'): ?>
 
-                        <div class="form-group">
+                        <div class="response-form">
 
-                            <label for="comment">
-                                Lisää kommentti
-                            </label>
+                            <h2>
+                                Vastaa opiskelijalle
+                            </h2>
 
-                            <textarea
-                                id="comment"
-                                name="comment"
-                                rows="5"
-                                maxlength="5000"
-                                placeholder="Kirjoita kommentti..."
-                                required
-                            ><?= htmlspecialchars($commentText) ?></textarea>
+                            <p>
+                                Kirjoita tähän opiskelijalle lähetettävä vastaus.
+                            </p>
+
+                            <form
+                                method="POST"
+                                action="ticket.php?id=<?= htmlspecialchars($ticket['id']) ?>#comments"
+                                class="comment-form"
+                            >
+
+                                <div class="form-group">
+
+                                    <label for="comment">
+                                        Vastaus
+                                    </label>
+
+                                    <textarea
+                                        id="comment"
+                                        name="comment"
+                                        rows="6"
+                                        maxlength="5000"
+                                        placeholder="Kirjoita vastaus opiskelijalle..."
+                                        required
+                                    ><?= htmlspecialchars($commentText) ?></textarea>
+
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    class="button"
+                                >
+                                    Lähetä vastaus
+                                </button>
+
+                            </form>
 
                         </div>
 
-                        <button
-                            type="submit"
-                            class="button"
-                        >
-                            Lisää kommentti
-                        </button>
+                    <?php elseif ($_SESSION['role'] === 'student'): ?>
 
-                    </form>
+                        <div class="response-form">
+
+                            <h2>
+                                Lisää kommentti
+                            </h2>
+
+                            <form
+                                method="POST"
+                                action="ticket.php?id=<?= htmlspecialchars($ticket['id']) ?>#comments"
+                                class="comment-form"
+                            >
+
+                                <div class="form-group">
+
+                                    <label for="comment">
+                                        Kommentti
+                                    </label>
+
+                                    <textarea
+                                        id="comment"
+                                        name="comment"
+                                        rows="5"
+                                        maxlength="5000"
+                                        placeholder="Kirjoita kommentti..."
+                                        required
+                                    ><?= htmlspecialchars($commentText) ?></textarea>
+
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    class="button"
+                                >
+                                    Lisää kommentti
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    <?php endif; ?>
 
                 </section>
 
 
                 <div class="ticket-actions">
+
 
                     <?php if (
                         isset($_GET['updated']) &&
@@ -609,6 +725,7 @@ $priorityLabels = [
     </section>
 
 </main>
+
 
 <footer class="site-footer">
 
