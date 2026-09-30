@@ -149,7 +149,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     Uusi tiketti
                 </a>
 
-                <a href="#">
+                <a href="my-tickets.php">
                     Omat tiketit
                 </a>
 
