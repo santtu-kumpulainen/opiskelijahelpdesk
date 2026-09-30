@@ -52,7 +52,7 @@ if (!$ticket) {
  */
 if (
     $_SESSION['role'] === 'student' &&
-    (int)$ticket['user_id'] !== (int)$_SESSION['user_id']
+    (int) $ticket['user_id'] !== (int) $_SESSION['user_id']
 ) {
     http_response_code(403);
     exit('Sinulla ei ole oikeutta nähdä tätä tikettiä.');
@@ -146,10 +146,7 @@ $priorityLabels = [
 
     <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>
         Tiketti #<?= htmlspecialchars($ticket['id']) ?>
@@ -162,323 +159,326 @@ $priorityLabels = [
 
 <body>
 
-<header class="site-header">
+    <header class="site-header">
 
-    <div class="container navbar">
+        <div class="container navbar">
 
-        <a href="index.php" class="logo">
-            OpiskelijaHelpdesk
-        </a>
-
-        <nav class="nav-links">
-
-            <a href="index.php">
-                Etusivu
+            <a href="index.php" class="logo">
+                OpiskelijaHelpdesk
             </a>
 
-            <?php if ($_SESSION['role'] === 'student'): ?>
+            <nav class="nav-links">
 
-                <a href="create-ticket.php">
-                    Uusi tiketti
+                <a href="index.php">
+                    Etusivu
                 </a>
 
-                <a href="my-tickets.php">
-                    Omat tiketit
+                <?php if ($_SESSION['role'] === 'student'): ?>
+
+                    <a href="create-ticket.php">
+                        Uusi tiketti
+                    </a>
+
+                    <a href="my-tickets.php">
+                        Omat tiketit
+                    </a>
+
+                <?php endif; ?>
+
+                <a href="logout.php">
+                    Kirjaudu ulos
                 </a>
 
-            <?php endif; ?>
+            </nav>
 
-            <a href="logout.php">
-                Kirjaudu ulos
-            </a>
+        </div>
 
-        </nav>
+    </header>
 
-    </div>
+    <main>
 
-</header>
+        <section class="hero">
 
-<main>
+            <div class="container">
 
-    <section class="hero">
+                <div class="ticket-detail">
 
-        <div class="container">
+                    <div class="ticket-detail-header">
 
-            <div class="ticket-detail">
+                        <div>
 
-                <div class="ticket-detail-header">
+                            <p class="ticket-number">
+                                Tiketti #<?= htmlspecialchars($ticket['id']) ?>
+                            </p>
 
-                    <div>
+                            <h1>
+                                <?= htmlspecialchars($ticket['title']) ?>
+                            </h1>
 
-                        <p class="ticket-number">
-                            Tiketti #<?= htmlspecialchars($ticket['id']) ?>
-                        </p>
+                        </div>
 
-                        <h1>
-                            <?= htmlspecialchars($ticket['title']) ?>
-                        </h1>
+                        <div class="ticket-status">
 
-                    </div>
-
-                    <div class="ticket-status">
-
-                        <?= htmlspecialchars(
-                            $statusLabels[$ticket['status']]
-                            ?? $ticket['status']
-                        ) ?>
-
-                    </div>
-
-                </div>
-
-                <div class="ticket-description">
-
-                    <h2>
-                        Kuvaus
-                    </h2>
-
-                    <p>
-                        <?= nl2br(
-                            htmlspecialchars($ticket['description'])
-                        ) ?>
-                    </p>
-
-                </div>
-
-                <div class="ticket-info">
-
-                    <div>
-
-                        <strong>
-                            Kategoria
-                        </strong>
-
-                        <span>
-                            <?= htmlspecialchars($ticket['category_name']) ?>
-                        </span>
-
-                    </div>
-
-                    <div>
-
-                        <strong>
-                            Prioriteetti
-                        </strong>
-
-                        <span>
-                            <?= htmlspecialchars(
-                                $priorityLabels[$ticket['priority']]
-                                ?? $ticket['priority']
-                            ) ?>
-                        </span>
-
-                    </div>
-
-                    <div>
-
-                        <strong>
-                            Tila
-                        </strong>
-
-                        <span>
                             <?= htmlspecialchars(
                                 $statusLabels[$ticket['status']]
                                 ?? $ticket['status']
                             ) ?>
-                        </span>
-
-                    </div>
-
-                    <div>
-
-                        <strong>
-                            Luotu
-                        </strong>
-
-                        <span>
-                            <?= htmlspecialchars($ticket['created_at']) ?>
-                        </span>
-
-                    </div>
-
-                    <div>
-
-                        <strong>
-                            Kirjoittaja
-                        </strong>
-
-                        <span>
-                            <?= htmlspecialchars($ticket['user_name']) ?>
-                        </span>
-
-                    </div>
-
-                    <div>
-
-                        <strong>
-                            Sähköposti
-                        </strong>
-
-                        <span>
-                            <?= htmlspecialchars($ticket['user_email']) ?>
-                        </span>
-
-                    </div>
-
-                </div>
-
-                <section
-                    class="comments-section"
-                    id="comments"
-                >
-
-                    <h2>
-                        Kommentit
-                    </h2>
-
-                    <?php if (empty($comments)): ?>
-
-                        <p>
-                            Tiketillä ei ole vielä kommentteja.
-                        </p>
-
-                    <?php else: ?>
-
-                        <div class="comment-list">
-
-                            <?php foreach ($comments as $comment): ?>
-
-                                <article class="comment">
-
-                                    <div class="comment-header">
-
-                                        <strong>
-                                            <?= htmlspecialchars(
-                                                $comment['user_name']
-                                            ) ?>
-                                        </strong>
-
-                                        <span>
-                                            <?= htmlspecialchars(
-                                                $comment['created_at']
-                                            ) ?>
-                                        </span>
-
-                                    </div>
-
-                                    <p>
-                                        <?= nl2br(
-                                            htmlspecialchars(
-                                                $comment['comment']
-                                            )
-                                        ) ?>
-                                    </p>
-
-                                </article>
-
-                            <?php endforeach; ?>
 
                         </div>
 
-                    <?php endif; ?>
+                    </div>
 
-                    <?php if (!empty($errors)): ?>
+                    <div class="ticket-description">
 
-                        <div class="form-error">
+                        <h2>
+                            Kuvaus
+                        </h2>
 
-                            <ul>
+                        <p>
+                            <?= nl2br(
+                                htmlspecialchars($ticket['description'])
+                            ) ?>
+                        </p>
 
-                                <?php foreach ($errors as $error): ?>
+                    </div>
 
-                                    <li>
-                                        <?= htmlspecialchars($error) ?>
-                                    </li>
+                    <div class="ticket-info">
+
+                        <div>
+
+                            <strong>
+                                Kategoria
+                            </strong>
+
+                            <span>
+                                <?= htmlspecialchars($ticket['category_name']) ?>
+                            </span>
+
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                Prioriteetti
+                            </strong>
+
+                            <span>
+                                <?= htmlspecialchars(
+                                    $priorityLabels[$ticket['priority']]
+                                    ?? $ticket['priority']
+                                ) ?>
+                            </span>
+
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                Tila
+                            </strong>
+
+                            <span>
+                                <?= htmlspecialchars(
+                                    $statusLabels[$ticket['status']]
+                                    ?? $ticket['status']
+                                ) ?>
+                            </span>
+
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                Luotu
+                            </strong>
+
+                            <span>
+                                <?= htmlspecialchars($ticket['created_at']) ?>
+                            </span>
+
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                Kirjoittaja
+                            </strong>
+
+                            <span>
+                                <?= htmlspecialchars($ticket['user_name']) ?>
+                            </span>
+
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                Sähköposti
+                            </strong>
+
+                            <span>
+                                <?= htmlspecialchars($ticket['user_email']) ?>
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <section class="comments-section" id="comments">
+
+                        <h2>
+                            Kommentit
+                        </h2>
+
+                        <?php if (empty($comments)): ?>
+
+                            <p>
+                                Tiketillä ei ole vielä kommentteja.
+                            </p>
+
+                        <?php else: ?>
+
+                            <div class="comment-list">
+
+                                <?php foreach ($comments as $comment): ?>
+
+                                    <article class="comment">
+
+                                        <div class="comment-header">
+
+                                            <strong>
+                                                <?= htmlspecialchars(
+                                                    $comment['user_name']
+                                                ) ?>
+                                            </strong>
+
+                                            <span>
+                                                <?= htmlspecialchars(
+                                                    $comment['created_at']
+                                                ) ?>
+                                            </span>
+
+                                        </div>
+
+                                        <p>
+                                            <?= nl2br(
+                                                htmlspecialchars(
+                                                    $comment['comment']
+                                                )
+                                            ) ?>
+                                        </p>
+
+                                    </article>
 
                                 <?php endforeach; ?>
 
-                            </ul>
+                            </div>
 
-                        </div>
+                        <?php endif; ?>
 
-                    <?php endif; ?>
+                        <?php if (!empty($errors)): ?>
 
-                    <form
-                        method="POST"
-                        action="ticket.php?id=<?= htmlspecialchars($ticket['id']) ?>#comments"
-                        class="comment-form"
-                    >
+                            <div class="form-error">
 
-                        <div class="form-group">
+                                <ul>
 
-                            <label for="comment">
+                                    <?php foreach ($errors as $error): ?>
+
+                                        <li>
+                                            <?= htmlspecialchars($error) ?>
+                                        </li>
+
+                                    <?php endforeach; ?>
+
+                                </ul>
+
+                            </div>
+
+                        <?php endif; ?>
+
+                        <form method="POST" action="ticket.php?id=<?= htmlspecialchars($ticket['id']) ?>#comments"
+                            class="comment-form">
+
+                            <div class="form-group">
+
+                                <label for="comment">
+                                    Lisää kommentti
+                                </label>
+
+                                <textarea id="comment" name="comment" rows="5" maxlength="5000"
+                                    placeholder="Kirjoita kommentti..."
+                                    required><?= htmlspecialchars($commentText) ?></textarea>
+
+                            </div>
+
+                            <button type="submit" class="button">
                                 Lisää kommentti
-                            </label>
+                            </button>
 
-                            <textarea
-                                id="comment"
-                                name="comment"
-                                rows="5"
-                                maxlength="5000"
-                                placeholder="Kirjoita kommentti..."
-                                required
-                            ><?= htmlspecialchars($commentText) ?></textarea>
+                        </form>
 
-                        </div>
+                    </section>
 
-                        <button
-                            type="submit"
-                            class="button"
-                        >
-                            Lisää kommentti
-                        </button>
+                    <div class="ticket-actions">
 
-                    </form>
+                        <?php if (
+                            isset($_GET['updated']) &&
+                            $_GET['updated'] === '1'
+                        ): ?>
 
-                </section>
+                            <div class="form-success">
+                                Tiketin tiedot päivitettiin onnistuneesti.
+                            </div>
 
-                <div class="ticket-actions">
+                        <?php endif; ?>
 
-                    <?php if ($_SESSION['role'] === 'student'): ?>
+                        <?php if (
+                            $_SESSION['role'] === 'support' ||
+                            $_SESSION['role'] === 'admin'
+                        ): ?>
 
-                        <a
-                            href="my-tickets.php"
-                            class="button secondary"
-                        >
-                            Takaisin omiin tiketteihin
-                        </a>
+                            <a href="update-ticket.php?id=<?= htmlspecialchars($ticket['id']) ?>" class="button">
+                                Muuta tilaa tai prioriteettia
+                            </a>
 
-                    <?php else: ?>
+                        <?php endif; ?>
 
-                        <a
-                            href="index.php"
-                            class="button secondary"
-                        >
-                            Takaisin
-                        </a>
+                        <?php if ($_SESSION['role'] === 'student'): ?>
 
-                    <?php endif; ?>
+                            <a href="my-tickets.php" class="button secondary">
+                                Takaisin omiin tiketteihin
+                            </a>
+
+                        <?php else: ?>
+
+                            <a href="index.php" class="button secondary">
+                                Takaisin
+                            </a>
+
+                        <?php endif; ?>
+
+                    </div>
 
                 </div>
 
             </div>
 
+        </section>
+
+    </main>
+
+    <footer class="site-footer">
+
+        <div class="container">
+
+            <p>
+                OpiskelijaHelpdesk
+            </p>
+
         </div>
 
-    </section>
-
-</main>
-
-<footer class="site-footer">
-
-    <div class="container">
-
-        <p>
-            OpiskelijaHelpdesk
-        </p>
-
-    </div>
-
-</footer>
+    </footer>
 
 </body>
+
 </html>
