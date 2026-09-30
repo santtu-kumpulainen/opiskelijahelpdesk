@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS tickets (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     category_id INT NOT NULL,
+    assigned_to INT NULL,
     title VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
     priority ENUM('low', 'normal', 'high', 'urgent') NOT NULL DEFAULT 'normal',
