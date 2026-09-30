@@ -26,9 +26,8 @@ function requireRole(string $role): void
     if (!hasRole($role)) {
         http_response_code(403);
 
-        echo '403 Forbidden';
+        echo '<h1>403 Forbidden</h1>';
         echo '<p>Sinulla ei ole oikeuksia tälle sivulle.</p>';
-
         exit;
     }
 }
@@ -37,12 +36,14 @@ function requireAnyRole(array $roles): void
 {
     requireLogin();
 
-    if (!in_array($_SESSION['role'], $roles, true)) {
+    if (
+        !isset($_SESSION['role']) ||
+        !in_array($_SESSION['role'], $roles, true)
+    ) {
         http_response_code(403);
 
-        echo '403 Forbidden';
+        echo '<h1>403 Forbidden</h1>';
         echo '<p>Sinulla ei ole oikeuksia tälle sivulle.</p>';
-
         exit;
     }
 }
