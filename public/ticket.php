@@ -48,7 +48,7 @@ if (!$ticket) {
 
 /*
  * Opiskelija saa nähdä vain omat tikettinsä.
- * Support ja admin voivat tarkastella tikettejä.
+ * Tukihenkilö ja ylläpitäjä voivat nähdä tikettejä.
  */
 if (
     $_SESSION['role'] === 'student' &&
@@ -57,6 +57,70 @@ if (
     http_response_code(403);
     exit('Sinulla ei ole oikeutta nähdä tätä tikettiä.');
 }
+
+$errors = [];
+$commentText = '';
+
+/*
+ * Lisätään uusi kommentti
+ */
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    $commentText = trim($_POST['comment'] ?? '');
+
+    if ($commentText === '') {
+        $errors[] = 'Kommentti ei voi olla tyhjä.';
+    }
+
+    if (mb_strlen($commentText) > 5000) {
+        $errors[] = 'Kommentti voi sisältää enintään 5000 merkkiä.';
+    }
+
+    if (empty($errors)) {
+
+        $stmt = $pdo->prepare(
+            'INSERT INTO comments
+                (ticket_id, user_id, comment)
+             VALUES
+                (?, ?, ?)'
+        );
+
+        $stmt->execute([
+            $ticket['id'],
+            $_SESSION['user_id'],
+            $commentText
+        ]);
+
+        header(
+            'Location: ticket.php?id=' .
+            urlencode($ticket['id']) .
+            '#comments'
+        );
+
+        exit;
+    }
+}
+
+/*
+ * Haetaan tiketin kommentit
+ */
+$stmt = $pdo->prepare(
+    'SELECT
+        comments.id,
+        comments.comment,
+        comments.created_at,
+        users.name AS user_name,
+        users.role AS user_role
+     FROM comments
+     INNER JOIN users
+        ON comments.user_id = users.id
+     WHERE comments.ticket_id = ?
+     ORDER BY comments.created_at ASC, comments.id ASC'
+);
+
+$stmt->execute([$ticket['id']]);
+
+$comments = $stmt->fetchAll();
 
 $statusLabels = [
     'new' => 'Uusi',
@@ -120,12 +184,6 @@ $priorityLabels = [
 
                 <a href="my-tickets.php">
                     Omat tiketit
-                </a>
-
-            <?php else: ?>
-
-                <a href="#">
-                    Tiketit
                 </a>
 
             <?php endif; ?>
@@ -268,6 +326,115 @@ $priorityLabels = [
                     </div>
 
                 </div>
+
+                <section
+                    class="comments-section"
+                    id="comments"
+                >
+
+                    <h2>
+                        Kommentit
+                    </h2>
+
+                    <?php if (empty($comments)): ?>
+
+                        <p>
+                            Tiketillä ei ole vielä kommentteja.
+                        </p>
+
+                    <?php else: ?>
+
+                        <div class="comment-list">
+
+                            <?php foreach ($comments as $comment): ?>
+
+                                <article class="comment">
+
+                                    <div class="comment-header">
+
+                                        <strong>
+                                            <?= htmlspecialchars(
+                                                $comment['user_name']
+                                            ) ?>
+                                        </strong>
+
+                                        <span>
+                                            <?= htmlspecialchars(
+                                                $comment['created_at']
+                                            ) ?>
+                                        </span>
+
+                                    </div>
+
+                                    <p>
+                                        <?= nl2br(
+                                            htmlspecialchars(
+                                                $comment['comment']
+                                            )
+                                        ) ?>
+                                    </p>
+
+                                </article>
+
+                            <?php endforeach; ?>
+
+                        </div>
+
+                    <?php endif; ?>
+
+                    <?php if (!empty($errors)): ?>
+
+                        <div class="form-error">
+
+                            <ul>
+
+                                <?php foreach ($errors as $error): ?>
+
+                                    <li>
+                                        <?= htmlspecialchars($error) ?>
+                                    </li>
+
+                                <?php endforeach; ?>
+
+                            </ul>
+
+                        </div>
+
+                    <?php endif; ?>
+
+                    <form
+                        method="POST"
+                        action="ticket.php?id=<?= htmlspecialchars($ticket['id']) ?>#comments"
+                        class="comment-form"
+                    >
+
+                        <div class="form-group">
+
+                            <label for="comment">
+                                Lisää kommentti
+                            </label>
+
+                            <textarea
+                                id="comment"
+                                name="comment"
+                                rows="5"
+                                maxlength="5000"
+                                placeholder="Kirjoita kommentti..."
+                                required
+                            ><?= htmlspecialchars($commentText) ?></textarea>
+
+                        </div>
+
+                        <button
+                            type="submit"
+                            class="button"
+                        >
+                            Lisää kommentti
+                        </button>
+
+                    </form>
+
+                </section>
 
                 <div class="ticket-actions">
 

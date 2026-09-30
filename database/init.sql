@@ -43,6 +43,22 @@ CREATE TABLE IF NOT EXISTS tickets (
         ON DELETE RESTRICT
 );
 
+CREATE TABLE IF NOT EXISTS comments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    ticket_id INT NOT NULL,
+    user_id INT NOT NULL,
+    comment TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (ticket_id)
+        REFERENCES tickets(id)
+        ON DELETE CASCADE,
+
+    FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE
+);
+
 INSERT IGNORE INTO categories (name) VALUES
     ('Laitteisto'),
     ('Ohjelmisto'),
