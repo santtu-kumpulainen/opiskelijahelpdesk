@@ -58,8 +58,10 @@ $priority = $ticket['priority'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    $status = $_POST['status'] ?? '';
-    $priority = $_POST['priority'] ?? '';
+    $statusInput = $_POST['status'] ?? '';
+    $priorityInput = $_POST['priority'] ?? '';
+    $status = is_string($statusInput) ? $statusInput : '';
+    $priority = is_string($priorityInput) ? $priorityInput : '';
 
     if (!array_key_exists($status, $statuses)) {
         $errors[] = 'Valittu tila ei ole kelvollinen.';

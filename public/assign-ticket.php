@@ -57,13 +57,21 @@ $assignedTo = $ticket['assigned_to'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    $assignedTo = $_POST['assigned_to'] ?? '';
+    $assignedInput = $_POST['assigned_to'] ?? '';
+    $assignedTo = is_string($assignedInput) ? $assignedInput : '';
+
+    if (!is_string($assignedInput)) {
+        $errors[] = 'Valitse kelvollinen tukihenkilö.';
+    }
 
     /*
      * Tyhjä arvo tarkoittaa, että tikettiä ei ole
      * osoitettu kenellekään.
      */
-    if ($assignedTo === '') {
+    if (!empty($errors)) {
+        $assignedToValue = null;
+
+    } elseif ($assignedTo === '') {
 
         $assignedToValue = null;
 

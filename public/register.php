@@ -6,19 +6,26 @@ require_once __DIR__ . '/../src/config/database.php';
 
 $message = '';
 $error = '';
+$name = '';
+$email = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    $name = trim($_POST['name'] ?? '');
-    $email = trim($_POST['email'] ?? '');
-    $password = $_POST['password'] ?? '';
+    $nameInput = $_POST['name'] ?? '';
+    $emailInput = $_POST['email'] ?? '';
+    $passwordInput = $_POST['password'] ?? '';
+    $name = is_string($nameInput) ? trim($nameInput) : '';
+    $email = is_string($emailInput) ? trim($emailInput) : '';
+    $password = is_string($passwordInput) ? $passwordInput : '';
 
     if ($name === '' || $email === '' || $password === '') {
         $error = 'Täytä kaikki kentät.';
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    } elseif (mb_strlen($name) > 100) {
+        $error = 'Nimi voi sisältää enintään 100 merkkiä.';
+    } elseif (mb_strlen($email) > 255 || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = 'Anna kelvollinen sähköpostiosoite.';
-    } elseif (strlen($password) < 8) {
-        $error = 'Salasanan tulee olla vähintään 8 merkkiä.';
+    } elseif (strlen($password) < 8 || strlen($password) > 255) {
+        $error = 'Salasanan tulee olla 8–255 merkkiä pitkä.';
     } else {
 
         $stmt = $pdo->prepare(
@@ -91,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     name="name"
                     required
                     maxlength="100"
-                    value="<?= htmlspecialchars($_POST['name'] ?? '') ?>"
+                    value="<?= htmlspecialchars($name, ENT_QUOTES, 'UTF-8') ?>"
                 >
             </div>
 
@@ -103,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     name="email"
                     required
                     maxlength="255"
-                    value="<?= htmlspecialchars($_POST['email'] ?? '') ?>"
+                    value="<?= htmlspecialchars($email, ENT_QUOTES, 'UTF-8') ?>"
                 >
             </div>
 
