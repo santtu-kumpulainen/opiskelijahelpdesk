@@ -449,6 +449,12 @@ $priorityLabels = [
                                 Takaisin omiin tiketteihin
                             </a>
 
+                        <?php elseif ($_SESSION['role'] === 'support'): ?>
+
+                            <a href="support-dashboard.php" class="button secondary">
+                                Takaisin dashboardille
+                            </a>
+
                         <?php else: ?>
 
                             <a href="index.php" class="button secondary">
