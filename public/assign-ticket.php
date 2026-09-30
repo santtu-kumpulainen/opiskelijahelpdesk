@@ -38,7 +38,7 @@ if (!$ticket) {
 /*
  * Haetaan kaikki support-käyttäjät.
  */
-$stmt = $pdo->query(
+$stmt = $pdo->prepare(
     'SELECT
         id,
         name,
@@ -47,6 +47,8 @@ $stmt = $pdo->query(
      WHERE role = "support"
      ORDER BY name'
 );
+
+$stmt->execute();
 
 $supportUsers = $stmt->fetchAll();
 

@@ -22,7 +22,7 @@ $priorities = [
     'urgent' => 'Kiireellinen'
 ];
 
-$stmt = $pdo->query(
+$stmt = $pdo->prepare(
     'SELECT
         tickets.id,
         tickets.title,
@@ -51,6 +51,8 @@ $stmt = $pdo->query(
         ),
         tickets.created_at ASC'
 );
+
+$stmt->execute();
 
 $tickets = $stmt->fetchAll();
 
