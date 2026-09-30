@@ -321,6 +321,49 @@ body {
     margin-top: 25px;
 }
 
+.ticket-filters {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr auto;
+    gap: 15px;
+    align-items: end;
+    margin: 30px 0;
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #ddd;
+}
+
+.ticket-filters .form-group {
+    margin-bottom: 0;
+}
+
+.filter-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.ticket-results {
+    margin-top: 20px;
+}
+
+.result-count {
+    color: #555;
+}
+
+@media (max-width: 900px) {
+
+    .ticket-filters {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .ticket-filters .form-group:first-child {
+        grid-column: 1 / -1;
+    }
+
+    .filter-actions {
+        grid-column: 1 / -1;
+    }
+}
+
 
 
 
@@ -386,6 +429,24 @@ body {
     .comment-header {
         flex-direction: column;
         gap: 5px;
+    }
+
+    .ticket-filters {
+        grid-template-columns: 1fr;
+    }
+
+    .ticket-filters .form-group:first-child {
+        grid-column: auto;
+    }
+
+    .filter-actions {
+        grid-column: auto;
+        flex-direction: column;
+    }
+
+    .filter-actions .button {
+        width: 100%;
+        text-align: center;
     }
 
     .hero {
