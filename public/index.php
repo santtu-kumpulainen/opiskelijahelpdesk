@@ -46,7 +46,7 @@ require_once __DIR__ . '/../src/config/auth.php';
                         Uusi tiketti
                     </a>
 
-                    <a href="#">
+                    <a href="my-tickets.php">
                         Omat tiketit
                     </a>
 
@@ -147,7 +147,7 @@ require_once __DIR__ . '/../src/config/auth.php';
                             Luo uusi tiketti
                         </a>
 
-                        <a href="#" class="button secondary">
+                        <a href="my-tickets.php" class="button secondary">
                             Omat tiketit
                         </a>
 
