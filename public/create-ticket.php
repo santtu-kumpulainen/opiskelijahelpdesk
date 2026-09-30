@@ -21,11 +21,13 @@ $priorities = [
     'urgent' => 'Kiireellinen'
 ];
 
-$stmt = $pdo->query(
+$stmt = $pdo->prepare(
     'SELECT id, name
      FROM categories
      ORDER BY name'
 );
+
+$stmt->execute();
 
 $categories = $stmt->fetchAll();
 
