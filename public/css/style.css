@@ -364,6 +364,38 @@ body {
     }
 }
 
+.dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin: 30px 0;
+}
+
+.stat-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #ddd;
+}
+
+.stat-card strong {
+    font-size: 30px;
+}
+
+.stat-card span {
+    color: #555;
+}
+
+.dashboard-section {
+    margin-top: 40px;
+}
+
+.dashboard-section h2 {
+    margin-bottom: 20px;
+}
+
 
 
 
@@ -449,6 +481,8 @@ body {
         text-align: center;
     }
 
+
+
     .hero {
         padding: 40px 0;
     }
@@ -463,5 +497,19 @@ body {
 
     .button {
         text-align: center;
+    }
+}
+
+@media (max-width: 800px) {
+
+    .dashboard-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 500px) {
+
+    .dashboard-stats {
+        grid-template-columns: 1fr;
     }
 }

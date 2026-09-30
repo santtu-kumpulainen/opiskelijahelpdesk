@@ -52,11 +52,11 @@ require_once __DIR__ . '/../src/config/auth.php';
 
                 <?php elseif ($_SESSION['role'] === 'support'): ?>
 
-                    <a href="#">
+                    <a href="support-dashboard.php">
                         Tiketit
                     </a>
 
-                    <a href="#">
+                    <a href="support-dashboard.php">
                         Dashboard
                     </a>
 
