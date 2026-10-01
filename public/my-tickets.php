@@ -154,29 +154,13 @@ $tickets = $stmt->fetchAll();
 
     <div class="container navbar">
 
-        <a href="index.php" class="logo">
+        <a href="my-tickets.php" class="logo">
             OpiskelijaHelpdesk
         </a>
 
-        <nav class="nav-links">
-
-            <a href="index.php">
-                Etusivu
-            </a>
-
-            <a href="create-ticket.php">
-                Uusi tiketti
-            </a>
-
-            <a href="my-tickets.php">
-                Omat tiketit
-            </a>
-
-            <a href="logout.php">
-                Kirjaudu ulos
-            </a>
-
-        </nav>
+        <a href="logout.php" class="button secondary">
+            Kirjaudu ulos
+        </a>
 
     </div>
 
@@ -195,6 +179,12 @@ $tickets = $stmt->fetchAll();
             <p>
                 Hae ja suodata omia tukipyyntöjäsi.
             </p>
+
+            <div class="hero-actions">
+                <a href="create-ticket.php" class="button">
+                    Luo uusi tiketti
+                </a>
+            </div>
 
             <form
                 method="GET"
