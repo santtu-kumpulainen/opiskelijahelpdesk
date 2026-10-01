@@ -4,6 +4,9 @@
 
 body {
     margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
     font-family: Arial, sans-serif;
     background: #f5f5f5;
     color: #222;
@@ -41,6 +44,7 @@ body {
 .nav-links {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 18px;
 }
 
@@ -53,10 +57,18 @@ body {
     text-decoration: underline;
 }
 
+.menu-toggle {
+    display: none;
+}
+
 /* Main */
 
 .hero {
     padding: 70px 0;
+}
+
+main {
+    flex: 1 0 auto;
 }
 
 .hero h1 {
@@ -80,6 +92,7 @@ body {
 .button {
     display: inline-block;
     padding: 12px 20px;
+    min-height: 44px;
     background: #222;
     color: #fff;
     text-decoration: none;
@@ -130,6 +143,8 @@ body {
 .form-group textarea,
 .form-group select {
     width: 100%;
+    min-width: 0;
+    min-height: 44px;
     padding: 12px;
     font: inherit;
     border: 1px solid #ccc;
@@ -181,6 +196,7 @@ body {
 }
 
 .ticket-card {
+    min-width: 0;
     background: #fff;
     border: 1px solid #ddd;
     padding: 25px;
@@ -208,6 +224,7 @@ body {
 
 
 .ticket-detail {
+    min-width: 0;
     max-width: 850px;
     margin: 50px auto;
     background: #fff;
@@ -315,6 +332,90 @@ body {
 .comment p {
     margin: 0;
     line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.ticket-card,
+.ticket-detail,
+.form-section,
+.dashboard-placeholder,
+.form-error,
+.form-success {
+    overflow-wrap: anywhere;
+}
+
+button,
+input,
+select,
+textarea {
+    max-width: 100%;
+}
+
+:focus-visible {
+    outline: 3px solid #2457c5;
+    outline-offset: 2px;
+}
+
+.form-group input:focus-visible,
+.form-group textarea:focus-visible,
+.form-group select:focus-visible {
+    outline: 3px solid #2457c5;
+    outline-offset: 2px;
+}
+
+.form-section button:not(.button) {
+    width: 100%;
+    min-height: 44px;
+    padding: 12px 20px;
+    border: 1px solid #222;
+    background: #222;
+    color: #fff;
+    font: inherit;
+    cursor: pointer;
+}
+
+/* Authentication pages */
+
+.auth-main {
+    display: flex;
+    align-items: center;
+    padding: 24px 0;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 520px;
+    margin: 32px auto;
+    padding: 36px;
+    border: 1px solid #e2e2e2;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgb(0 0 0 / 6%);
+}
+
+.auth-card h1 {
+    margin-bottom: 12px;
+    font-size: clamp(1.75rem, 4vw, 2.25rem);
+}
+
+.auth-card form {
+    margin-top: 24px;
+}
+
+.auth-card .form-group input {
+    border-radius: 4px;
+}
+
+.auth-switch {
+    margin: 24px 0 0;
+    color: #555;
+    text-align: center;
+    line-height: 1.6;
+}
+
+.auth-switch a {
+    color: #222;
+    font-weight: bold;
+    text-underline-offset: 3px;
 }
 
 .comment-form {
@@ -402,7 +503,7 @@ body {
 /* Footer */
 
 .site-footer {
-    margin-top: 50px;
+    margin-top: auto;
     padding: 25px 0;
     background: #fff;
     border-top: 1px solid #ddd;
@@ -413,17 +514,72 @@ body {
 @media (max-width: 700px) {
 
     .navbar {
-        flex-direction: column;
-        align-items: flex-start;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
         padding-top: 15px;
         padding-bottom: 15px;
+        gap: 12px;
+    }
+
+    .menu-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        margin-left: auto;
+        border: 1px solid #aaa;
+        border-radius: 4px;
+        background: #fff;
+        color: #222;
+        cursor: pointer;
+    }
+
+    .menu-toggle-icon,
+    .menu-toggle-icon::before,
+    .menu-toggle-icon::after {
+        display: block;
+        width: 22px;
+        height: 2px;
+        background: currentColor;
+    }
+
+    .menu-toggle-icon {
+        position: relative;
+    }
+
+    .menu-toggle-icon::before,
+    .menu-toggle-icon::after {
+        position: absolute;
+        left: 0;
+        content: "";
+    }
+
+    .menu-toggle-icon::before {
+        top: -7px;
+    }
+
+    .menu-toggle-icon::after {
+        top: 7px;
+    }
+
+    .navbar.menu-ready:not(.menu-open) .nav-links {
+        display: none;
     }
 
     .nav-links {
         width: 100%;
         flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
+        align-items: stretch;
+        gap: 0;
+    }
+
+    .nav-links a {
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 0;
     }
 
     .ticket-card-header {
@@ -446,7 +602,16 @@ body {
 
     .form-section {
         margin: 30px 0;
-        padding: 20px;
+        padding: 20px 16px;
+    }
+
+    .auth-main {
+        padding: 12px 0;
+    }
+
+    .auth-card {
+        margin: 18px auto;
+        padding: 26px 20px;
     }
 
     .form-actions {
@@ -497,6 +662,19 @@ body {
 
     .button {
         text-align: center;
+    }
+
+    .hero-actions .button,
+    .form-actions .button,
+    .filter-actions .button,
+    button {
+        min-height: 44px;
+    }
+
+    input,
+    select,
+    textarea {
+        font-size: 16px;
     }
 }
 

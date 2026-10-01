@@ -147,3 +147,9 @@ Huomio: `docker compose down -v` poistaa tietokannan Docker-volumen ja samalla k
 ## Status
 
 Projekti on kehitysvaiheessa.
+
+## Käytettävyys ja responsiivisuus
+
+Käyttöliittymä mukautuu mobiili-, tabletti- ja tietokonenäytöille. Pienillä näytöillä navigaatio avautuu hamburger-painikkeesta, ja footer pysyy lyhyen sivun alareunassa. Lomakkeet ja painikkeet täyttävät käytettävissä olevan tilan, ja pitkät tekstit saavat rivittyä ilman että ne rikkovat asettelun.
+
+Lomakkeissa käytetään näkyviä nimikkeitä, pakollisten kenttien selaintarkistusta ja palvelinpuolen validointia. Virheilmoitukset esitetään lomakkeen yhteydessä. Näppäimistökäyttöä tukevat näkyvät kohdistusmerkit, ja kentät sekä painikkeet ovat vähintään 44 pikseliä korkeita kosketuskäyttöä varten.

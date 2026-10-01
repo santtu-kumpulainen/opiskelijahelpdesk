@@ -20,6 +20,7 @@ require_once __DIR__ . '/../src/config/auth.php';
     <title>OpiskelijaHelpdesk</title>
 
     <link rel="stylesheet" href="css/style.css">
+    <script src="js/app.js" defer></script>
 </head>
 
 <body>

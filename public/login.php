@@ -52,22 +52,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kirjautuminen - OpiskelijaHelpdesk</title>
     <link rel="stylesheet" href="css/style.css">
+    <script src="js/app.js" defer></script>
 </head>
 
 <body>
 
-    <main>
+    <header class="site-header">
+        <div class="container navbar">
+            <a href="index.php" class="logo">OpiskelijaHelpdesk</a>
+            <nav class="nav-links" aria-label="Päänavigaatio">
+                <a href="index.php">Etusivu</a>
+                <a href="register.php">Rekisteröidy</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="auth-main">
+        <div class="container">
+            <section class="form-section auth-card">
         <h1>Kirjaudu sisään</h1>
 
         <?php if ($error): ?>
-            <p class="error">
+            <p class="form-error">
                 <?= htmlspecialchars($error) ?>
             </p>
         <?php endif; ?>
 
         <form method="POST">
 
-            <div>
+            <div class="form-group">
                 <label for="email">Sähköposti</label>
                 <input
                     type="email"
@@ -79,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 >
             </div>
 
-            <div>
+            <div class="form-group">
                 <label for="password">Salasana</label>
                 <input
                     type="password"
@@ -93,12 +106,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         </form>
 
-        <p>
+        <p class="auth-switch">
             Ei vielä käyttäjää?
             <a href="register.php">Rekisteröidy</a>
         </p>
 
+            </section>
+        </div>
     </main>
+
+    <footer class="site-footer">
+        <div class="container"><p>OpiskelijaHelpdesk</p></div>
+    </footer>
 
 </body>
 </html>
