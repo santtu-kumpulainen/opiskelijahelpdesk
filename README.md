@@ -1,8 +1,32 @@
 # OpiskelijaHelpdesk
 
-OpiskelijaHelpdesk on PHP-, JavaScript- ja MySQL-pohjainen tikettijärjestelmä opiskelijoiden teknisten tukipyyntöjen hallintaan.
+OpiskelijaHelpdesk on PHP-, JavaScript- ja MariaDB-pohjainen tikettijärjestelmä opiskelijoiden teknisten tukipyyntöjen hallintaan.
 
-Projektin tavoitteena on harjoitella web-sovelluksen kehittämistä, Git-versionhallintaa, GitHub Issues -työskentelyä, brancheja ja Pull Requesteja.
+Projektin tavoitteena on harjoitella web-sovelluksen kehittämistä, tietokantoja, Git-versionhallintaa, GitHub Issues -työskentelyä, brancheja ja Pull Requesteja.
+
+## Ominaisuudet
+
+- Opiskelijan rekisteröityminen ja kirjautuminen
+- Opiskelijan omien tikettien hallinta
+- Uuden tukipyynnön luominen
+- Tikettien haku ja suodatus
+- Tiketin tarkastelu
+- Kommentit ja support-henkilön vastaukset
+- Tiketin tilan ja prioriteetin muuttaminen
+- Tiketin osoittaminen support-henkilölle
+- Support-dashboard
+- Admin-käyttäjien hallinta
+- Käyttäjäroolien hallinta
+- Roolipohjaiset käyttöoikeudet
+- Responsiivinen käyttöliittymä
+
+## Käyttäjäroolit
+
+| Rooli | Toiminnot |
+|---|---|
+| `student` | Luo tikettejä, tarkastelee omia tikettejä ja lisää kommentteja |
+| `support` | Käsittelee tikettejä, vastaa opiskelijoille ja muuttaa tikettien tietoja |
+| `admin` | Hallitsee käyttäjiä ja käyttäjärooleja |
 
 ## Teknologiat
 
@@ -10,7 +34,7 @@ Projektin tavoitteena on harjoitella web-sovelluksen kehittämistä, Git-version
 - JavaScript
 - HTML5
 - CSS3
-- MySQL / MariaDB
+- MariaDB / MySQL
 - PDO
 - Docker
 - Git
@@ -20,16 +44,79 @@ Projektin tavoitteena on harjoitella web-sovelluksen kehittämistä, Git-version
 
 ```text
 opiskelijahelpdesk/
-├── database/       # Tietokannan SQL-tiedostot
-├── docker/         # Docker-konfiguraatiot
-│   ├── mysql/
+├── database/
+│   └── init.sql
+├── docker/
 │   └── php/
-├── public/         # Sovelluksen julkiset tiedostot
-├── src/            # Sovelluksen lähdekoodi
+├── public/
+│   ├── css/
+│   ├── js/
+│   └── *.php
+├── src/
 │   └── config/
 ├── .gitignore
+├── compose.yaml
 └── README.md
 ```
+
+`public/` sisältää sovelluksen selainkäyttöön tarkoitetut PHP-, JavaScript- ja CSS-tiedostot.
+
+`src/config/` sisältää esimerkiksi tietokantayhteyden ja autentikoinnin asetukset.
+
+`database/init.sql` sisältää tietokannan taulujen ja alustavien kategorioiden luonnin.
+
+## Tietokanta
+
+Tietokanta sisältää seuraavat päätaulut:
+
+```text
+users
+  │
+  ├──< tickets
+  │       │
+  │       ├── category
+  │       └──< comments
+  │
+  └──< comments
+```
+
+### Päätaulut
+
+**users**
+
+- `id`
+- `name`
+- `email`
+- `password`
+- `role`
+- `created_at`
+
+**categories**
+
+- `id`
+- `name`
+
+**tickets**
+
+- `id`
+- `user_id`
+- `category_id`
+- `assigned_to`
+- `title`
+- `description`
+- `priority`
+- `status`
+- `created_at`
+
+**comments**
+
+- `id`
+- `ticket_id`
+- `user_id`
+- `comment`
+- `created_at`
+
+Taulujen väliset suhteet toteutetaan primary key- ja foreign key -rajoitteilla. Tietokannassa on indeksit muun muassa käyttäjän, kategorian, käsittelijän, tilan, prioriteetin ja luontiajan perusteella.
 
 ## Asennus
 
@@ -45,53 +132,21 @@ Siirry projektikansioon:
 cd opiskelijahelpdesk
 ```
 
-Docker-ympäristö otetaan käyttöön projektin myöhemmässä vaiheessa.
+### Docker
 
-## Paikallinen käynnistys
-
-Projektin nykyinen versio voidaan käynnistää PHP:n sisäänrakennetulla kehityspalvelimella:
-
-```bash
-php -S localhost:8000 -t public
-```
-
-Avaa selaimessa:
-
-```text
-http://localhost:8000
-```
-
-## Kehitys
-
-Projektia kehitetään GitHub Issues -tikettien avulla. Jokainen tiketti toteutetaan omassa branchissaan ja yhdistetään `main`-haaraan Pull Requestin kautta.
-
-Esimerkiksi:
-
-```bash
-git switch main
-git pull origin main
-git switch -c feature/ticket-1
-```
-
-## Docker-kehitysympäristö
-
-Projekti käyttää Dockeria PHP-, MariaDB- ja phpMyAdmin-ympäristön suorittamiseen.
-
-### Käynnistys
-
-Projektin juuressa suorita:
+Käynnistä kehitysympäristö:
 
 ```bash
 docker compose up -d --build
 ```
 
-Containerien tilan voi tarkistaa:
+Tarkista containerien tila:
 
 ```bash
 docker compose ps
 ```
 
-### Palvelut
+Palvelut:
 
 | Palvelu | Osoite |
 |---|---|
@@ -99,57 +154,107 @@ docker compose ps
 | phpMyAdmin | http://localhost:8082 |
 | MariaDB | localhost:3307 |
 
-PHP-sovellus käyttää Docker-verkon kautta MariaDB-palvelua osoitteella:
+PHP-container yhdistää MariaDB:hen Docker-verkon kautta:
 
 ```text
 mysql:3306
 ```
 
-Host-koneelta MariaDB on saatavilla portissa `3307`.
-
-### phpMyAdmin
-
-phpMyAdminiin kirjaudutaan osoitteessa:
-
-http://localhost:8082
-
-Kirjautumistiedot:
-
-```text
-Server: mysql
-Username: <username>
-Password: <password>
-```
+Host-koneelta MariaDB käyttää porttia `3307`.
 
 ### Tietokannan alustaminen
 
-Tietokanta alustetaan automaattisesti Dockerin ensimmäisen käynnistyksen yhteydessä tiedostosta:
+Tietokanta alustetaan Dockerin ensimmäisellä käynnistyksellä tiedostosta:
 
 ```text
 database/init.sql
 ```
 
-Tietokannan data tallennetaan Docker-volumelle:
+Tietokannan tiedot tallennetaan Docker-volumelle:
 
 ```text
 helpdesk_mysql_data
 ```
 
-Jos tietokanta halutaan alustaa kokonaan uudelleen kehityksen aikana:
+Kehitysympäristössä tietokannan voi tarvittaessa alustaa kokonaan uudelleen:
 
 ```bash
 docker compose down -v
 docker compose up -d --build
 ```
 
-Huomio: `docker compose down -v` poistaa tietokannan Docker-volumen ja samalla kaikki siihen tallennetut tiedot.
+> `docker compose down -v` poistaa tietokantavolumen ja kaikki siihen tallennetut tiedot. Käytä komentoa vain, kun tietokannan nollaaminen on tarkoituksellista.
 
-## Status
+## Tietoturva
 
-Projekti on kehitysvaiheessa.
+Projektissa käytetään muun muassa seuraavia ratkaisuja:
 
-## Käytettävyys ja responsiivisuus
+- PDO-tietokantayhteys
+- prepared statements SQL-kyselyissä
+- salasanat tallennetaan `password_hash()`-menetelmällä
+- kirjautuminen tarkistetaan session avulla
+- roolipohjaiset käyttöoikeudet
+- palvelinpuolen syötteiden validointi
+- virheelliset käyttäjäsyötteet käsitellään hallitusti
+- tietokantavirheiden tarkkoja tietoja ei näytetä käyttäjälle
 
-Käyttöliittymä mukautuu mobiili-, tabletti- ja tietokonenäytöille. Pienillä näytöillä navigaatio avautuu hamburger-painikkeesta, ja footer pysyy lyhyen sivun alareunassa. Lomakkeet ja painikkeet täyttävät käytettävissä olevan tilan, ja pitkät tekstit saavat rivittyä ilman että ne rikkovat asettelun.
+Tietokantatunnuksia, salasanoja tai muita salaisia tietoja ei tallenneta repositoryyn.
 
-Lomakkeissa käytetään näkyviä nimikkeitä, pakollisten kenttien selaintarkistusta ja palvelinpuolen validointia. Virheilmoitukset esitetään lomakkeen yhteydessä. Näppäimistökäyttöä tukevat näkyvät kohdistusmerkit, ja kentät sekä painikkeet ovat vähintään 44 pikseliä korkeita kosketuskäyttöä varten.
+## Käyttöliittymä
+
+Käyttöliittymä on responsiivinen ja toimii tietokoneella, tabletilla ja mobiililaitteilla.
+
+- Navigointi mukautuu pienille näytöille
+- Lomakkeet ja painikkeet toimivat kosketusnäytöllä
+- Pitkät tekstit rivittyvät ilman vaakasuuntaista ylivuotoa
+- Lomakkeissa käytetään näkyviä kenttien nimikkeitä
+- Pakolliset kentät tarkistetaan selaimessa ja palvelimella
+- Virheilmoitukset näytetään käyttäjälle
+- Näppäimistökäytössä näkyvät kohdistusmerkit
+
+## Testaus
+
+Projektia testattiin toiminnallisesti käyttäjärooleittain ja erilaisilla virheellisillä syötteillä.
+
+Testattuja toimintoja ovat muun muassa:
+
+- rekisteröinti
+- kirjautuminen ja uloskirjautuminen
+- tiketin luonti
+- omien tikettien tarkastelu
+- tiketin haku ja suodatus
+- kommentointi
+- supportin vastaaminen
+- tiketin käsittely
+- admin-toiminnot
+- roolipohjaiset käyttöoikeudet
+- virheellisten syötteiden käsittely
+- responsiivinen käyttöliittymä
+
+## Git-työskentely
+
+Projektia kehitettiin GitHub Issues -tikettien avulla.
+
+Jokainen ominaisuus toteutettiin omassa branchissaan ja yhdistettiin `main`-haaraan Pull Requestin kautta.
+
+Esimerkiksi:
+
+```bash
+git switch main
+git pull origin main
+git switch -c feature/ticket-20
+```
+
+Muutosten jälkeen:
+
+```bash
+git add .
+git commit -m "Complete project documentation"
+git push -u origin feature/ticket-20
+```
+
+Pull Request yhdistetään `main`-haaraan GitHubissa.
+
+## Projektin tila
+
+Projektin suunnitellut ominaisuudet ja Issue-tiketit on toteutettu ja projekti on valmis palautettavaksi.
