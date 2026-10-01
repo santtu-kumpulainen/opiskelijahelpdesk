@@ -99,6 +99,7 @@ foreach ($tickets as $ticket) {
     </title>
 
     <link rel="stylesheet" href="css/style.css">
+    <script src="js/app.js" defer></script>
 
 </head>
 
