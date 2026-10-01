@@ -5,46 +5,57 @@ session_start();
 require_once __DIR__ . '/../src/config/database.php';
 
 $error = '';
+$emailValue = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    $email = trim($_POST['email'] ?? '');
-    $password = $_POST['password'] ?? '';
+    $emailInput = $_POST['email'] ?? '';
+    $passwordInput = $_POST['password'] ?? '';
 
-    if ($email === '' || $password === '') {
-        $error = 'Täytä kaikki kentät.';
+    if (!is_string($emailInput) || !is_string($passwordInput)) {
+        $error = 'Lomakkeen tiedot ovat virheellisiä.';
     } else {
+        $email = trim($emailInput);
+        $password = $passwordInput;
+        $emailValue = $emailInput;
 
-        $stmt = $pdo->prepare(
-            'SELECT id, name, email, password, role
-             FROM users
-             WHERE email = ?'
-        );
-
-        $stmt->execute([$email]);
-
-        $user = $stmt->fetch();
-
-        if ($user && password_verify($password, $user['password'])) {
-
-            session_regenerate_id(true);
-
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['user_name'] = $user['name'];
-            $_SESSION['user_email'] = $user['email'];
-            $_SESSION['role'] = $user['role'];
-
-            $destination = match ($user['role']) {
-                'admin' => 'admin.php',
-                'support' => 'support-dashboard.php',
-                default => 'my-tickets.php'
-            };
-
-            header('Location: ' . $destination);
-            exit;
-
+        if ($email === '' || $password === '') {
+            $error = 'Täytä kaikki kentät.';
+        } elseif (mb_strlen($email) > 255) {
+            $error = 'Sähköpostiosoite on liian pitkä.';
         } else {
-            $error = 'Virheellinen sähköposti tai salasana.';
+
+            $stmt = $pdo->prepare(
+                'SELECT id, name, email, password, role
+                 FROM users
+                 WHERE email = ?'
+            );
+
+            $stmt->execute([$email]);
+
+            $user = $stmt->fetch();
+
+            if ($user && password_verify($password, $user['password'])) {
+
+                session_regenerate_id(true);
+
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['user_name'] = $user['name'];
+                $_SESSION['user_email'] = $user['email'];
+                $_SESSION['role'] = $user['role'];
+
+                $destination = match ($user['role']) {
+                    'admin' => 'admin.php',
+                    'support' => 'support-dashboard.php',
+                    default => 'my-tickets.php'
+                };
+
+                header('Location: ' . $destination);
+                exit;
+
+            } else {
+                $error = 'Virheellinen sähköposti tai salasana.';
+            }
         }
     }
 }
@@ -94,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     name="email"
                     required
                     maxlength="255"
-                    value="<?= htmlspecialchars($_POST['email'] ?? '') ?>"
+                    value="<?= htmlspecialchars($emailValue) ?>"
                 >
             </div>
 

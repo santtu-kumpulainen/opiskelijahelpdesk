@@ -6,49 +6,67 @@ require_once __DIR__ . '/../src/config/database.php';
 
 $message = '';
 $error = '';
+$nameValue = '';
+$emailValue = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    $name = trim($_POST['name'] ?? '');
-    $email = trim($_POST['email'] ?? '');
-    $password = $_POST['password'] ?? '';
+    $nameInput = $_POST['name'] ?? '';
+    $emailInput = $_POST['email'] ?? '';
+    $passwordInput = $_POST['password'] ?? '';
 
-    if ($name === '' || $email === '' || $password === '') {
-        $error = 'Täytä kaikki kentät.';
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $error = 'Anna kelvollinen sähköpostiosoite.';
-    } elseif (strlen($password) < 8) {
-        $error = 'Salasanan tulee olla vähintään 8 merkkiä.';
+    if (!is_string($nameInput) || !is_string($emailInput) || !is_string($passwordInput)) {
+        $error = 'Lomakkeen tiedot ovat virheellisiä.';
     } else {
+        $name = trim($nameInput);
+        $email = trim($emailInput);
+        $password = $passwordInput;
+        $nameValue = $nameInput;
+        $emailValue = $emailInput;
 
-        $stmt = $pdo->prepare(
-            'SELECT id FROM users WHERE email = ?'
-        );
-
-        $stmt->execute([$email]);
-
-        if ($stmt->fetch()) {
-            $error = 'Sähköpostiosoite on jo käytössä.';
+        if ($name === '' || $email === '' || $password === '') {
+            $error = 'Täytä kaikki kentät.';
+        } elseif (mb_strlen($name) > 100) {
+            $error = 'Nimi on liian pitkä.';
+        } elseif (mb_strlen($email) > 255) {
+            $error = 'Sähköpostiosoite on liian pitkä.';
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $error = 'Anna kelvollinen sähköpostiosoite.';
+        } elseif (strlen($password) < 8) {
+            $error = 'Salasanan tulee olla vähintään 8 merkkiä.';
+        } elseif (strlen($password) > 255) {
+            $error = 'Salasana on liian pitkä.';
         } else {
 
-            $passwordHash = password_hash(
-                $password,
-                PASSWORD_DEFAULT
-            );
-
             $stmt = $pdo->prepare(
-                'INSERT INTO users (name, email, password, role)
-                 VALUES (?, ?, ?, ?)'
+                'SELECT id FROM users WHERE email = ?'
             );
 
-            $stmt->execute([
-                $name,
-                $email,
-                $passwordHash,
-                'student'
-            ]);
+            $stmt->execute([$email]);
 
-            $message = 'Rekisteröinti onnistui. Voit nyt kirjautua sisään.';
+            if ($stmt->fetch()) {
+                $error = 'Sähköpostiosoite on jo käytössä.';
+            } else {
+
+                $passwordHash = password_hash(
+                    $password,
+                    PASSWORD_DEFAULT
+                );
+
+                $stmt = $pdo->prepare(
+                    'INSERT INTO users (name, email, password, role)
+                     VALUES (?, ?, ?, ?)'
+                );
+
+                $stmt->execute([
+                    $name,
+                    $email,
+                    $passwordHash,
+                    'student'
+                ]);
+
+                $message = 'Rekisteröinti onnistui. Voit nyt kirjautua sisään.';
+            }
         }
     }
 }
@@ -104,7 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     name="name"
                     required
                     maxlength="100"
-                    value="<?= htmlspecialchars($_POST['name'] ?? '') ?>"
+                    value="<?= htmlspecialchars($nameValue) ?>"
                 >
             </div>
 
@@ -116,7 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     name="email"
                     required
                     maxlength="255"
-                    value="<?= htmlspecialchars($_POST['email'] ?? '') ?>"
+                    value="<?= htmlspecialchars($emailValue) ?>"
                 >
             </div>
 
