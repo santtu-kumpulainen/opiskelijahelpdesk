@@ -109,25 +109,13 @@ foreach ($tickets as $ticket) {
 
         <div class="container navbar">
 
-            <a href="index.php" class="logo">
+            <a href="support-dashboard.php" class="logo">
                 OpiskelijaHelpdesk
             </a>
 
-            <nav class="nav-links">
-
-                <a href="index.php">
-                    Etusivu
-                </a>
-
-                <a href="support-dashboard.php">
-                    Dashboard
-                </a>
-
-                <a href="logout.php">
-                    Kirjaudu ulos
-                </a>
-
-            </nav>
+            <a href="logout.php" class="button secondary">
+                Kirjaudu ulos
+            </a>
 
         </div>
 

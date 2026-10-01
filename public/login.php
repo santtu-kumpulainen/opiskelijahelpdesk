@@ -34,7 +34,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user_email'] = $user['email'];
             $_SESSION['role'] = $user['role'];
 
-            header('Location: index.php');
+            $destination = match ($user['role']) {
+                'admin' => 'admin.php',
+                'support' => 'support-dashboard.php',
+                default => 'my-tickets.php'
+            };
+
+            header('Location: ' . $destination);
             exit;
 
         } else {
