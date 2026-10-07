@@ -214,6 +214,10 @@ usort(
                 <a href="create-ticket.php" class="button">
                     Luo uusi tiketti
                 </a>
+
+                <a href="index.php#chat" class="button secondary">
+                    Kysy tekoälyltä
+                </a>
             </div>
 
             <form

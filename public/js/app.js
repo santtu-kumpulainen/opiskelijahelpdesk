@@ -41,4 +41,57 @@ document.addEventListener('DOMContentLoaded', () => {
         mobileLayout.addEventListener('change', syncLayout);
         syncLayout();
     });
+
+    prefillTicketFromChat();
 });
+
+/*
+ * Esitäyttää tukipyyntölomakkeen tekoälychatin luonnoksella
+ * (js/chat.js). Käyttäjä tarkistaa tiedot ja lähettää lomakkeen itse.
+ */
+function prefillTicketFromChat() {
+    const title = document.getElementById('title');
+    const description = document.getElementById('description');
+
+    if (
+        !title ||
+        !description ||
+        new URLSearchParams(window.location.search).get('from') !== 'chat'
+    ) {
+        return;
+    }
+
+    let draft = null;
+
+    try {
+        draft = JSON.parse(window.sessionStorage.getItem('helpdesk-chat-ticket-draft') || 'null');
+        window.sessionStorage.removeItem('helpdesk-chat-ticket-draft');
+    } catch {
+        return;
+    }
+
+    // Luonnos vanhenee puolessa tunnissa.
+    if (
+        !draft ||
+        typeof draft.title !== 'string' ||
+        typeof draft.description !== 'string' ||
+        Date.now() - Number(draft.createdAt) > 30 * 60 * 1000
+    ) {
+        return;
+    }
+
+    // Lomakkeen palvelinvalidoinnin jälkeen säilytetään käyttäjän omat arvot.
+    if (title.value.trim() !== '' || description.value.trim() !== '') {
+        return;
+    }
+
+    title.value = draft.title.slice(0, Number(title.maxLength) > 0 ? title.maxLength : 255);
+    description.value = draft.description.slice(0, Number(description.maxLength) > 0 ? description.maxLength : 10000);
+
+    const notice = document.createElement('div');
+    notice.className = 'form-success';
+    notice.setAttribute('role', 'status');
+    notice.textContent = 'Otsikko ja kuvaus esitäytettiin chat-keskustelusta. Tarkista ja muokkaa tiedot, valitse kategoria ja lähetä tukipyyntö.';
+    title.form.before(notice);
+    title.focus();
+}

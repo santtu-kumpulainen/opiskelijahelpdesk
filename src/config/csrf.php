@@ -29,9 +29,13 @@ function csrfField(): string
         . '">';
 }
 
-function isValidCsrfToken(): bool
+/*
+ * Ilman parametria token luetaan lomakkeen csrf_token-kentästä.
+ * JSON-rajapinnat välittävät tokenin otsakkeesta parametrina.
+ */
+function isValidCsrfToken(mixed $token = null): bool
 {
-    $token = $_POST['csrf_token'] ?? '';
+    $token ??= $_POST['csrf_token'] ?? '';
 
     return is_string($token)
         && $token !== ''
