@@ -82,7 +82,8 @@ $commentText = '';
  */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    $commentText = trim($_POST['comment'] ?? '');
+    $commentInput = $_POST['comment'] ?? '';
+    $commentText = is_string($commentInput) ? trim($commentInput) : '';
 
     /*
      * Tarkistetaan kommentti

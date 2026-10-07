@@ -6,17 +6,26 @@ require_once __DIR__ . '/../src/config/database.php';
 
 $message = '';
 $error = '';
-$nameValue = '';
-$emailValue = '';
+$name = '';
+$email = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $nameInput = $_POST['name'] ?? '';
     $emailInput = $_POST['email'] ?? '';
     $passwordInput = $_POST['password'] ?? '';
+    $name = is_string($nameInput) ? trim($nameInput) : '';
+    $email = is_string($emailInput) ? trim($emailInput) : '';
+    $password = is_string($passwordInput) ? $passwordInput : '';
 
-    if (!is_string($nameInput) || !is_string($emailInput) || !is_string($passwordInput)) {
-        $error = 'Lomakkeen tiedot ovat virheellisiä.';
+    if ($name === '' || $email === '' || $password === '') {
+        $error = 'Täytä kaikki kentät.';
+    } elseif (mb_strlen($name) > 100) {
+        $error = 'Nimi voi sisältää enintään 100 merkkiä.';
+    } elseif (mb_strlen($email) > 255 || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = 'Anna kelvollinen sähköpostiosoite.';
+    } elseif (strlen($password) < 8 || strlen($password) > 255) {
+        $error = 'Salasanan tulee olla 8–255 merkkiä pitkä.';
     } else {
         $name = trim($nameInput);
         $email = trim($emailInput);
@@ -122,7 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     name="name"
                     required
                     maxlength="100"
-                    value="<?= htmlspecialchars($nameValue) ?>"
+                    value="<?= htmlspecialchars($name, ENT_QUOTES, 'UTF-8') ?>"
                 >
             </div>
 
@@ -134,7 +143,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     name="email"
                     required
                     maxlength="255"
-                    value="<?= htmlspecialchars($emailValue) ?>"
+                    value="<?= htmlspecialchars($email, ENT_QUOTES, 'UTF-8') ?>"
                 >
             </div>
 

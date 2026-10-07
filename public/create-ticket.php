@@ -33,10 +33,14 @@ $categories = $stmt->fetchAll();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    $title = trim($_POST['title'] ?? '');
-    $description = trim($_POST['description'] ?? '');
-    $categoryId = $_POST['category_id'] ?? '';
-    $priority = $_POST['priority'] ?? 'normal';
+    $titleInput = $_POST['title'] ?? '';
+    $descriptionInput = $_POST['description'] ?? '';
+    $categoryInput = $_POST['category_id'] ?? '';
+    $priorityInput = $_POST['priority'] ?? 'normal';
+    $title = is_string($titleInput) ? trim($titleInput) : '';
+    $description = is_string($descriptionInput) ? trim($descriptionInput) : '';
+    $categoryId = is_string($categoryInput) ? $categoryInput : '';
+    $priority = is_string($priorityInput) ? $priorityInput : '';
 
     if ($title === '') {
         $errors[] = 'Anna tiketin otsikko.';
@@ -50,6 +54,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Anna tiketin kuvaus.';
     } elseif (mb_strlen($description) < 10) {
         $errors[] = 'Kuvauksen täytyy sisältää vähintään 10 merkkiä.';
+    } elseif (mb_strlen($description) > 10000) {
+        $errors[] = 'Kuvaus voi sisältää enintään 10 000 merkkiä.';
     }
 
     if (
@@ -249,7 +255,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 Kuvaus
                             </label>
 
-                            <textarea id="description" name="description" rows="8"
+                            <textarea id="description" name="description" rows="8" maxlength="10000"
                                 placeholder="Kuvaa ongelma mahdollisimman tarkasti..."
                                 required><?= htmlspecialchars($description) ?></textarea>
 

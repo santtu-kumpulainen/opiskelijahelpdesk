@@ -5,15 +5,19 @@ session_start();
 require_once __DIR__ . '/../src/config/database.php';
 
 $error = '';
-$emailValue = '';
+$email = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $emailInput = $_POST['email'] ?? '';
     $passwordInput = $_POST['password'] ?? '';
+    $email = is_string($emailInput) ? trim($emailInput) : '';
+    $password = is_string($passwordInput) ? $passwordInput : '';
 
-    if (!is_string($emailInput) || !is_string($passwordInput)) {
-        $error = 'Lomakkeen tiedot ovat virheellisiä.';
+    if ($email === '' || $password === '') {
+        $error = 'Täytä kaikki kentät.';
+    } elseif (mb_strlen($email) > 255 || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = 'Tarkista sähköpostiosoitteen muoto.';
     } else {
         $email = trim($emailInput);
         $password = $passwordInput;
@@ -105,7 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     name="email"
                     required
                     maxlength="255"
-                    value="<?= htmlspecialchars($emailValue) ?>"
+                    value="<?= htmlspecialchars($email, ENT_QUOTES, 'UTF-8') ?>"
                 >
             </div>
 
