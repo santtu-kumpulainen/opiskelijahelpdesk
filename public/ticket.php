@@ -297,14 +297,14 @@ $roleLabels = [
 
                     </div>
 
-                    <div class="ticket-status">
+                    <span class="status-badge status-<?= htmlspecialchars($ticket['status']) ?>">
 
                         <?= htmlspecialchars(
                             $statusLabels[$ticket['status']]
                             ?? $ticket['status']
                         ) ?>
 
-                    </div>
+                    </span>
 
                 </div>
 
@@ -347,26 +347,10 @@ $roleLabels = [
                             Prioriteetti
                         </strong>
 
-                        <span>
+                        <span class="priority-<?= htmlspecialchars($ticket['priority']) ?>">
                             <?= htmlspecialchars(
                                 $priorityLabels[$ticket['priority']]
                                 ?? $ticket['priority']
-                            ) ?>
-                        </span>
-
-                    </div>
-
-
-                    <div>
-
-                        <strong>
-                            Tila
-                        </strong>
-
-                        <span>
-                            <?= htmlspecialchars(
-                                $statusLabels[$ticket['status']]
-                                ?? $ticket['status']
                             ) ?>
                         </span>
 
@@ -405,9 +389,13 @@ $roleLabels = [
                         </strong>
 
                         <span>
-                            <?= htmlspecialchars(
-                                $ticket['created_at']
-                            ) ?>
+                            <time datetime="<?= htmlspecialchars(
+                                date('Y-m-d\TH:i', strtotime($ticket['created_at']))
+                            ) ?>">
+                                <?= htmlspecialchars(
+                                    date('j.n.Y H.i', strtotime($ticket['created_at']))
+                                ) ?>
+                            </time>
                         </span>
 
                     </div>
@@ -478,7 +466,7 @@ $roleLabels = [
 
                             <?php foreach ($comments as $comment): ?>
 
-                                <article class="comment">
+                                <article class="comment<?= $comment['user_role'] !== 'student' ? ' is-staff' : '' ?>">
 
                                     <div class="comment-header">
 
@@ -490,20 +478,22 @@ $roleLabels = [
                                                 ) ?>
                                             </strong>
 
-                                            <span>
-                                                (<?= htmlspecialchars(
+                                            <span class="comment-role">
+                                                <?= htmlspecialchars(
                                                     $roleLabels[$comment['user_role']]
                                                     ?? $comment['user_role']
-                                                ) ?>)
+                                                ) ?>
                                             </span>
 
                                         </div>
 
-                                        <span>
+                                        <time datetime="<?= htmlspecialchars(
+                                            date('Y-m-d\TH:i', strtotime($comment['created_at']))
+                                        ) ?>">
                                             <?= htmlspecialchars(
-                                                $comment['created_at']
+                                                date('j.n.Y H.i', strtotime($comment['created_at']))
                                             ) ?>
-                                        </span>
+                                        </time>
 
                                     </div>
 
