@@ -4,6 +4,7 @@ session_start();
 
 require_once __DIR__ . '/../src/config/auth.php';
 require_once __DIR__ . '/../src/config/database.php';
+require_once __DIR__ . '/../src/config/csrf.php';
 
 requireAnyRole(['support', 'admin']);
 
@@ -56,6 +57,10 @@ $errors = [];
 $assignedTo = $ticket['assigned_to'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    if (!isValidCsrfToken()) {
+        $errors[] = CSRF_ERROR_MESSAGE;
+    }
 
     $assignedInput = $_POST['assigned_to'] ?? '';
     $assignedTo = is_string($assignedInput) ? $assignedInput : '';
@@ -243,6 +248,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         method="POST"
                         action="assign-ticket.php?id=<?= htmlspecialchars($ticketId) ?>"
                     >
+                        <?= csrfField() ?>
 
                         <div class="form-group">
 

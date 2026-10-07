@@ -4,6 +4,7 @@ session_start();
 
 require_once __DIR__ . '/../src/config/auth.php';
 require_once __DIR__ . '/../src/config/database.php';
+require_once __DIR__ . '/../src/config/csrf.php';
 
 requireLogin();
 
@@ -81,6 +82,10 @@ $commentText = '';
  * Kommentin / tukihenkilön vastauksen käsittely
  */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    if (!isValidCsrfToken()) {
+        $errors[] = CSRF_ERROR_MESSAGE;
+    }
 
     $commentInput = $_POST['comment'] ?? '';
     $commentText = is_string($commentInput) ? trim($commentInput) : '';
@@ -554,6 +559,7 @@ $roleLabels = [
                                 action="ticket.php?id=<?= htmlspecialchars($ticket['id']) ?>#comments"
                                 class="comment-form"
                             >
+                                <?= csrfField() ?>
 
                                 <div class="form-group">
 
@@ -596,6 +602,7 @@ $roleLabels = [
                                 action="ticket.php?id=<?= htmlspecialchars($ticket['id']) ?>#comments"
                                 class="comment-form"
                             >
+                                <?= csrfField() ?>
 
                                 <div class="form-group">
 

@@ -4,6 +4,7 @@ session_start();
 
 require_once __DIR__ . '/../src/config/auth.php';
 require_once __DIR__ . '/../src/config/database.php';
+require_once __DIR__ . '/../src/config/csrf.php';
 
 requireRole('student');
 
@@ -32,6 +33,10 @@ $stmt->execute();
 $categories = $stmt->fetchAll();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    if (!isValidCsrfToken()) {
+        $errors[] = CSRF_ERROR_MESSAGE;
+    }
 
     $titleInput = $_POST['title'] ?? '';
     $descriptionInput = $_POST['description'] ?? '';
@@ -236,6 +241,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <?php endif; ?>
 
                     <form method="POST" action="create-ticket.php">
+                        <?= csrfField() ?>
 
                         <div class="form-group">
 

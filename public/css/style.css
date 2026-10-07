@@ -626,6 +626,199 @@ textarea {
     border-radius: 6px;
 }
 
+.dashboard-stats.admin-stats {
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
+
+/* Admin: in-page navigation */
+
+.admin-subnav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 20px;
+    margin-top: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+}
+
+.admin-subnav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+    color: var(--text);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.admin-subnav a:hover {
+    color: var(--accent);
+    text-decoration: underline;
+}
+
+/* Admin: charts */
+
+.chart-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.chart-card {
+    min-width: 0;
+    margin: 0;
+    padding: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
+
+.chart-card-wide {
+    grid-column: 1 / -1;
+}
+
+.chart-card figcaption h3 {
+    margin: 0;
+    font-size: 17px;
+}
+
+.chart-card figcaption p {
+    margin: 4px 0 16px;
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+.chart-canvas {
+    position: relative;
+    height: 260px;
+}
+
+.chart-canvas-tall {
+    height: 300px;
+}
+
+.chart-table {
+    margin-top: 12px;
+    font-size: 14px;
+}
+
+.chart-table summary {
+    min-height: 32px;
+    display: inline-flex;
+    align-items: center;
+    color: var(--accent);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.chart-table .admin-table {
+    margin-top: 8px;
+}
+
+.chart-table .admin-table th,
+.chart-table .admin-table td {
+    padding: 8px 10px;
+}
+
+/* Admin: ticket management */
+
+.admin-ticket-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 12px 16px;
+    margin-bottom: 16px;
+}
+
+.admin-ticket-filters .form-group {
+    flex: 1 1 280px;
+    max-width: 420px;
+    margin-bottom: 0;
+}
+
+.checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.checkbox-label input {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    accent-color: var(--accent);
+}
+
+.assign-dialog {
+    width: min(480px, calc(100% - 32px));
+    padding: 24px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: 0 12px 32px rgb(0 0 0 / 18%);
+}
+
+.assign-dialog::backdrop {
+    background: rgb(20 26 36 / 45%);
+}
+
+.assign-dialog h3 {
+    margin: 0 0 4px;
+    font-size: 20px;
+}
+
+.assign-dialog-ticket {
+    margin: 0 0 16px;
+    color: var(--text-muted);
+    overflow-wrap: anywhere;
+}
+
+.assign-dialog-current {
+    margin: 0 0 16px;
+}
+
+.dialog-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.button[hidden] {
+    display: none;
+}
+
+.ticket-table .row-actions .button {
+    white-space: nowrap;
+}
+
+@media (max-width: 760px) {
+
+    .chart-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .chart-canvas-tall {
+        height: 260px;
+    }
+
+    .dialog-actions .button {
+        flex: 1 1 100%;
+    }
+
+    .admin-ticket-filters {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .admin-ticket-filters .form-group {
+        flex-basis: auto;
+        max-width: none;
+    }
+}
+
 .admin-table-wrap {
     width: 100%;
     overflow-x: auto;

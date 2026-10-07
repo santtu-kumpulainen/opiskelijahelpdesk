@@ -3,6 +3,7 @@
 session_start();
 
 require_once __DIR__ . '/../src/config/database.php';
+require_once __DIR__ . '/../src/config/csrf.php';
 
 $message = '';
 $error = '';
@@ -18,7 +19,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = is_string($emailInput) ? trim($emailInput) : '';
     $password = is_string($passwordInput) ? $passwordInput : '';
 
-    if ($name === '' || $email === '' || $password === '') {
+    if (!isValidCsrfToken()) {
+        $error = CSRF_ERROR_MESSAGE;
+    } elseif ($name === '' || $email === '' || $password === '') {
         $error = 'Täytä kaikki kentät.';
     } elseif (mb_strlen($name) > 100) {
         $error = 'Nimi voi sisältää enintään 100 merkkiä.';
@@ -122,6 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <form method="POST">
+            <?= csrfField() ?>
 
             <div class="form-group">
                 <label for="name">Nimi</label>
