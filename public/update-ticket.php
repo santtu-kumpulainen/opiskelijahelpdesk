@@ -4,6 +4,7 @@ session_start();
 
 require_once __DIR__ . '/../src/config/auth.php';
 require_once __DIR__ . '/../src/config/database.php';
+require_once __DIR__ . '/../src/config/csrf.php';
 
 requireAnyRole(['support', 'admin']);
 
@@ -57,6 +58,10 @@ $status = $ticket['status'];
 $priority = $ticket['priority'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    if (!isValidCsrfToken()) {
+        $errors[] = CSRF_ERROR_MESSAGE;
+    }
 
     $statusInput = $_POST['status'] ?? '';
     $priorityInput = $_POST['priority'] ?? '';
@@ -192,6 +197,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     method="POST"
                     action="update-ticket.php?id=<?= htmlspecialchars($ticketId) ?>"
                 >
+                    <?= csrfField() ?>
 
                     <div class="form-group">
 

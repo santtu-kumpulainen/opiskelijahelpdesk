@@ -3,6 +3,7 @@
 session_start();
 
 require_once __DIR__ . '/../src/config/database.php';
+require_once __DIR__ . '/../src/config/csrf.php';
 
 $error = '';
 $email = '';
@@ -14,7 +15,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = is_string($emailInput) ? trim($emailInput) : '';
     $password = is_string($passwordInput) ? $passwordInput : '';
 
-    if ($email === '' || $password === '') {
+    if (!isValidCsrfToken()) {
+        $error = CSRF_ERROR_MESSAGE;
+    } elseif ($email === '' || $password === '') {
         $error = 'Täytä kaikki kentät.';
     } elseif (mb_strlen($email) > 255 || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = 'Tarkista sähköpostiosoitteen muoto.';
@@ -100,6 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <form method="POST">
+            <?= csrfField() ?>
 
             <div class="form-group">
                 <label for="email">Sähköposti</label>

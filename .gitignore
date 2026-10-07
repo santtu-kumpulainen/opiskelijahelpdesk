@@ -22,6 +22,9 @@ Thumbs.db
 /vendor/
 vendor/
 
+# Selaimen paikalliset kirjastot (Chart.js) kuuluvat repoon
+!public/js/vendor/
+
 # Local database dumps
 *.sql.bak
 
