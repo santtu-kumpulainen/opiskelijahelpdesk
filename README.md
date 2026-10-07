@@ -18,6 +18,7 @@ Projektin tavoitteena on harjoitella web-sovelluksen kehittämistä, tietokantoj
 - Admin-käyttäjien hallinta
 - Käyttäjäroolien hallinta
 - Roolipohjaiset käyttöoikeudet
+- Tekoälychat (paikallinen Ollama-kielimalli)
 - Responsiivinen käyttöliittymä
 
 ## Käyttäjäroolit
@@ -184,6 +185,44 @@ docker compose up -d --build
 ```
 
 > `docker compose down -v` poistaa tietokantavolumen ja kaikki siihen tallennetut tiedot. Käytä komentoa vain, kun tietokannan nollaaminen on tarkoituksellista.
+
+## Tekoälychat (Ollama)
+
+Kirjautunut käyttäjä voi kysyä etusivun chatissa neuvoa IT- ja ohjelmointiongelmiin. Vastaukset tuottaa paikallinen [Ollama](https://ollama.com)-kielimalli. Jos ongelma ei ratkea, opiskelija voi siirtyä tukipyynnön luontiin, jolloin otsikko ja kuvaus esitäytetään keskustelusta. Tiketti luodaan vasta, kun käyttäjä lähettää lomakkeen itse.
+
+Selain kutsuu vain `public/chat-api.php`-rajapintaa, ja PHP välittää pyynnöt Ollamalle. Keskusteluhistoria säilyy selaimen muistissa sivun latauksen ajan, eikä sitä tallenneta tietokantaan.
+
+### Asetukset
+
+Asetukset luetaan ympäristömuuttujista (`src/config/ollama.php`):
+
+| Muuttuja | Oletus | Kuvaus |
+|---|---|---|
+| `OLLAMA_URL` | `http://127.0.0.1:11434` | Ollaman osoite |
+| `OLLAMA_MODEL` | `jobautomation/OpenEuroLLM-Finnish:latest` | Oletusmalli, jos se on asennettu |
+| `OLLAMA_TIMEOUT` | `180` | Vastauksen enimmäisodotus sekunteina |
+
+Käyttäjä voi valita vain Ollamaan asennettuja malleja.
+
+### Dockerissa
+
+PHP-kontin sisällä `127.0.0.1` tarkoittaa konttia itseään. Siksi `docker-compose.yaml` asettaa oletukseksi `OLLAMA_URL=http://host.docker.internal:11434`, jolloin kontti yhdistää isäntäkoneella ajettavaan Ollamaan. Arvot voi ohittaa projektin `.env`-tiedostossa:
+
+```env
+OLLAMA_URL=http://host.docker.internal:11434
+OLLAMA_MODEL=jobautomation/OpenEuroLLM-Finnish:latest
+OLLAMA_TIMEOUT=180
+```
+
+Muutosten jälkeen: `docker compose up -d --build php`.
+
+Vaatimukset:
+
+- Ollama on käynnissä isäntäkoneella ja malli on asennettu: `ollama pull jobautomation/OpenEuroLLM-Finnish:latest`.
+- Docker Desktopissa (Windows/macOS) `host.docker.internal` toimii valmiiksi.
+- Linuxissa `docker-compose.yaml` lisää `host.docker.internal`-nimen (`host-gateway`). Ollaman täytyy kuunnella myös Docker-verkkoa, esimerkiksi `OLLAMA_HOST=0.0.0.0`.
+
+Puheentunnistus ja ääneen luku käyttävät selaimen omia rajapintoja (esim. Chrome ja Edge). Chat toimii ilman niitä kirjoittamalla.
 
 ## Tietoturva
 

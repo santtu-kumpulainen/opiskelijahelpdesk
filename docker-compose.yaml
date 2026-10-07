@@ -16,6 +16,14 @@ services:
       DB_NAME: opiskelijahelpdesk
       DB_USER: helpdesk
       DB_PASSWORD: helpdesk
+      # Kontin sisällä 127.0.0.1 on kontti itse, joten Ollamaan
+      # yhdistetään isäntäkoneen kautta. Arvot voi ohittaa .env-tiedostossa.
+      OLLAMA_URL: ${OLLAMA_URL:-http://host.docker.internal:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-}
+      OLLAMA_TIMEOUT: ${OLLAMA_TIMEOUT:-}
+    extra_hosts:
+      # Linuxissa host.docker.internal ei ole valmiiksi määritelty.
+      - "host.docker.internal:host-gateway"
 
   mysql:
     image: mariadb:11
