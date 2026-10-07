@@ -162,3 +162,14 @@ VALUES
     ('Verkko'),
     ('Käyttäjätunnus'),
     ('Muu');
+
+
+-- =========================================
+-- TEST USERS
+-- =========================================
+
+INSERT IGNORE INTO users (name, email, password, role)
+VALUES
+    ('Testi opiskelija', 'testi@gmail.com', '$2y$12$fq1HP2SfddKIuxsCfqTQeeqxqg8jFHJzHcRDHtN7GuOnczrSP47Eq', 'student'),
+    ('Support käyttäjä', 'support@gmail.com', '$2y$12$nGA26bXQtxJIC7hWE47Xa.OAVmSMcHKeBm2XE9xEYaz8v2aTGcXaS', 'support'),
+    ('Admin käyttäjä', 'admin@gmail.com', '$2y$12$PiE2ze0Gw/DZsBgqAdc7fe5cidzSHeZjSlmaVNZMsaf/wwyC.pvGe', 'admin');

@@ -27,35 +27,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (strlen($password) < 8 || strlen($password) > 255) {
         $error = 'Salasanan tulee olla 8–255 merkkiä pitkä.';
     } else {
+        $name = trim($nameInput);
+        $email = trim($emailInput);
+        $password = $passwordInput;
+        $nameValue = $nameInput;
+        $emailValue = $emailInput;
 
-        $stmt = $pdo->prepare(
-            'SELECT id FROM users WHERE email = ?'
-        );
-
-        $stmt->execute([$email]);
-
-        if ($stmt->fetch()) {
-            $error = 'Sähköpostiosoite on jo käytössä.';
+        if ($name === '' || $email === '' || $password === '') {
+            $error = 'Täytä kaikki kentät.';
+        } elseif (mb_strlen($name) > 100) {
+            $error = 'Nimi on liian pitkä.';
+        } elseif (mb_strlen($email) > 255) {
+            $error = 'Sähköpostiosoite on liian pitkä.';
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $error = 'Anna kelvollinen sähköpostiosoite.';
+        } elseif (strlen($password) < 8) {
+            $error = 'Salasanan tulee olla vähintään 8 merkkiä.';
+        } elseif (strlen($password) > 255) {
+            $error = 'Salasana on liian pitkä.';
         } else {
 
-            $passwordHash = password_hash(
-                $password,
-                PASSWORD_DEFAULT
-            );
-
             $stmt = $pdo->prepare(
-                'INSERT INTO users (name, email, password, role)
-                 VALUES (?, ?, ?, ?)'
+                'SELECT id FROM users WHERE email = ?'
             );
 
-            $stmt->execute([
-                $name,
-                $email,
-                $passwordHash,
-                'student'
-            ]);
+            $stmt->execute([$email]);
 
-            $message = 'Rekisteröinti onnistui. Voit nyt kirjautua sisään.';
+            if ($stmt->fetch()) {
+                $error = 'Sähköpostiosoite on jo käytössä.';
+            } else {
+
+                $passwordHash = password_hash(
+                    $password,
+                    PASSWORD_DEFAULT
+                );
+
+                $stmt = $pdo->prepare(
+                    'INSERT INTO users (name, email, password, role)
+                     VALUES (?, ?, ?, ?)'
+                );
+
+                $stmt->execute([
+                    $name,
+                    $email,
+                    $passwordHash,
+                    'student'
+                ]);
+
+                $message = 'Rekisteröinti onnistui. Voit nyt kirjautua sisään.';
+            }
         }
     }
 }
@@ -69,28 +89,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rekisteröinti - OpiskelijaHelpdesk</title>
     <link rel="stylesheet" href="css/style.css">
+    <script src="js/app.js" defer></script>
 </head>
 
 <body>
 
-    <main>
+    <header class="site-header">
+        <div class="container navbar">
+            <a href="index.php" class="logo">OpiskelijaHelpdesk</a>
+            <nav class="nav-links" aria-label="Päänavigaatio">
+                <a href="index.php">Etusivu</a>
+                <a href="login.php">Kirjaudu</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="auth-main">
+        <div class="container">
+            <section class="form-section auth-card">
         <h1>Rekisteröidy</h1>
 
         <?php if ($error): ?>
-            <p class="error">
+            <p class="form-error">
                 <?= htmlspecialchars($error) ?>
             </p>
         <?php endif; ?>
 
         <?php if ($message): ?>
-            <p class="success">
+            <p class="form-success">
                 <?= htmlspecialchars($message) ?>
             </p>
         <?php endif; ?>
 
         <form method="POST">
 
-            <div>
+            <div class="form-group">
                 <label for="name">Nimi</label>
                 <input
                     type="text"
@@ -102,7 +135,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 >
             </div>
 
-            <div>
+            <div class="form-group">
                 <label for="email">Sähköposti</label>
                 <input
                     type="email"
@@ -114,7 +147,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 >
             </div>
 
-            <div>
+            <div class="form-group">
                 <label for="password">Salasana</label>
                 <input
                     type="password"
@@ -129,12 +162,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         </form>
 
-        <p>
+        <p class="auth-switch">
             Onko sinulla jo käyttäjä?
             <a href="login.php">Kirjaudu sisään</a>
         </p>
 
+            </section>
+        </div>
     </main>
+
+    <footer class="site-footer">
+        <div class="container"><p>OpiskelijaHelpdesk</p></div>
+    </footer>
 
 </body>
 </html>

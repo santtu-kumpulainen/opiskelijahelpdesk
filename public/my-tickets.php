@@ -125,6 +125,36 @@ $stmt->execute($params);
 
 $tickets = $stmt->fetchAll();
 
+/*
+ * Jaetaan tiketit aktiivisiin ja valmiisiin.
+ * Opiskelijalta vastausta odottavat nostetaan aktiivisten kärkeen.
+ */
+$ticketGroups = [
+    'active' => [
+        'title' => 'Aktiiviset tiketit',
+        'tickets' => []
+    ],
+    'closed' => [
+        'title' => 'Ratkaistut ja suljetut',
+        'tickets' => []
+    ]
+];
+
+foreach ($tickets as $ticket) {
+
+    $groupKey = in_array($ticket['status'], ['resolved', 'closed'], true)
+        ? 'closed'
+        : 'active';
+
+    $ticketGroups[$groupKey]['tickets'][] = $ticket;
+}
+
+usort(
+    $ticketGroups['active']['tickets'],
+    fn ($a, $b) => ($b['status'] === 'waiting_student')
+        <=> ($a['status'] === 'waiting_student')
+);
+
 ?>
 
 <!DOCTYPE html>
@@ -144,6 +174,7 @@ $tickets = $stmt->fetchAll();
     </title>
 
     <link rel="stylesheet" href="css/style.css">
+    <script src="js/app.js" defer></script>
 
 </head>
 
@@ -153,29 +184,13 @@ $tickets = $stmt->fetchAll();
 
     <div class="container navbar">
 
-        <a href="index.php" class="logo">
+        <a href="my-tickets.php" class="logo">
             OpiskelijaHelpdesk
         </a>
 
-        <nav class="nav-links">
-
-            <a href="index.php">
-                Etusivu
-            </a>
-
-            <a href="create-ticket.php">
-                Uusi tiketti
-            </a>
-
-            <a href="my-tickets.php">
-                Omat tiketit
-            </a>
-
-            <a href="logout.php">
-                Kirjaudu ulos
-            </a>
-
-        </nav>
+        <a href="logout.php" class="button secondary">
+            Kirjaudu ulos
+        </a>
 
     </div>
 
@@ -194,6 +209,12 @@ $tickets = $stmt->fetchAll();
             <p>
                 Hae ja suodata omia tukipyyntöjäsi.
             </p>
+
+            <div class="hero-actions">
+                <a href="create-ticket.php" class="button">
+                    Luo uusi tiketti
+                </a>
+            </div>
 
             <form
                 method="GET"
@@ -358,76 +379,135 @@ $tickets = $stmt->fetchAll();
 
                 <?php else: ?>
 
-                    <div class="ticket-list">
+                    <?php foreach ($ticketGroups as $groupKey => $group): ?>
 
-                        <?php foreach ($tickets as $ticket): ?>
+                        <?php
+                        /*
+                         * Suljettujen osio näytetään vain, jos siinä on tikettejä.
+                         * Aktiivisten osio näytetään aina, ellei tilasuodatin
+                         * rajaa sitä pois.
+                         */
+                        if (
+                            empty($group['tickets']) &&
+                            ($groupKey !== 'active' || $status !== '')
+                        ) {
+                            continue;
+                        }
+                        ?>
 
-                            <article class="ticket-card">
+                        <section
+                            class="ticket-group<?= $groupKey === 'closed' ? ' is-closed' : '' ?>"
+                            aria-labelledby="group-<?= $groupKey ?>"
+                        >
 
-                                <div class="ticket-card-header">
+                            <div class="ticket-group-header">
 
-                                    <h2>
-                                        <?= htmlspecialchars(
-                                            $ticket['title']
-                                        ) ?>
-                                    </h2>
+                                <h2 id="group-<?= $groupKey ?>">
+                                    <?= htmlspecialchars($group['title']) ?>
+                                </h2>
 
-                                    <span>
-                                        #<?= htmlspecialchars(
-                                            $ticket['id']
-                                        ) ?>
-                                    </span>
+                                <span>
+                                    <?= count($group['tickets']) ?> kpl
+                                </span>
+
+                            </div>
+
+                            <?php if (empty($group['tickets'])): ?>
+
+                                <p class="empty-note">
+                                    Sinulla ei ole avoimia tikettejä.
+                                </p>
+
+                            <?php else: ?>
+
+                                <div class="ticket-list">
+
+                                    <?php foreach ($group['tickets'] as $ticket): ?>
+
+                                        <article class="ticket-card<?= $groupKey === 'closed' ? ' is-closed' : '' ?>">
+
+                                            <div class="ticket-card-header">
+
+                                                <div>
+
+                                                    <p class="ticket-number">
+                                                        Tiketti #<?= htmlspecialchars(
+                                                            $ticket['id']
+                                                        ) ?>
+                                                    </p>
+
+                                                    <h3>
+                                                        <a href="ticket.php?id=<?= htmlspecialchars(
+                                                            $ticket['id']
+                                                        ) ?>">
+                                                            <?= htmlspecialchars(
+                                                                $ticket['title']
+                                                            ) ?>
+                                                        </a>
+                                                    </h3>
+
+                                                </div>
+
+                                                <span class="status-badge status-<?= htmlspecialchars(
+                                                    $ticket['status']
+                                                ) ?>">
+                                                    <?= htmlspecialchars(
+                                                        $statuses[$ticket['status']]
+                                                        ?? $ticket['status']
+                                                    ) ?>
+                                                </span>
+
+                                            </div>
+
+                                            <dl class="ticket-meta">
+
+                                                <div>
+                                                    <dt>Kategoria</dt>
+                                                    <dd>
+                                                        <?= htmlspecialchars(
+                                                            $ticket['category_name']
+                                                        ) ?>
+                                                    </dd>
+                                                </div>
+
+                                                <div>
+                                                    <dt>Prioriteetti</dt>
+                                                    <dd class="priority-<?= htmlspecialchars(
+                                                        $ticket['priority']
+                                                    ) ?>">
+                                                        <?= htmlspecialchars(
+                                                            $priorities[$ticket['priority']]
+                                                            ?? $ticket['priority']
+                                                        ) ?>
+                                                    </dd>
+                                                </div>
+
+                                                <div>
+                                                    <dt>Luotu</dt>
+                                                    <dd>
+                                                        <time datetime="<?= htmlspecialchars(
+                                                            date('Y-m-d\TH:i', strtotime($ticket['created_at']))
+                                                        ) ?>">
+                                                            <?= htmlspecialchars(
+                                                                date('j.n.Y H.i', strtotime($ticket['created_at']))
+                                                            ) ?>
+                                                        </time>
+                                                    </dd>
+                                                </div>
+
+                                            </dl>
+
+                                        </article>
+
+                                    <?php endforeach; ?>
 
                                 </div>
 
-                                <div class="ticket-card-info">
+                            <?php endif; ?>
 
-                                    <p>
-                                        <strong>Kategoria:</strong>
-                                        <?= htmlspecialchars(
-                                            $ticket['category_name']
-                                        ) ?>
-                                    </p>
+                        </section>
 
-                                    <p>
-                                        <strong>Tila:</strong>
-                                        <?= htmlspecialchars(
-                                            $statuses[$ticket['status']]
-                                            ?? $ticket['status']
-                                        ) ?>
-                                    </p>
-
-                                    <p>
-                                        <strong>Prioriteetti:</strong>
-                                        <?= htmlspecialchars(
-                                            $priorities[$ticket['priority']]
-                                            ?? $ticket['priority']
-                                        ) ?>
-                                    </p>
-
-                                    <p>
-                                        <strong>Luotu:</strong>
-                                        <?= htmlspecialchars(
-                                            $ticket['created_at']
-                                        ) ?>
-                                    </p>
-
-                                </div>
-
-                                <a
-                                    href="ticket.php?id=<?= htmlspecialchars(
-                                        $ticket['id']
-                                    ) ?>"
-                                    class="button secondary"
-                                >
-                                    Näytä tiketti
-                                </a>
-
-                            </article>
-
-                        <?php endforeach; ?>
-
-                    </div>
+                    <?php endforeach; ?>
 
                 <?php endif; ?>
 

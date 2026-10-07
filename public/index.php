@@ -4,6 +4,23 @@ session_start();
 
 require_once __DIR__ . '/../src/config/auth.php';
 
+if (isset($_SESSION['user_id'])) {
+    if ($_SESSION['role'] === 'admin') {
+        header('Location: admin.php');
+        exit;
+    }
+
+    if ($_SESSION['role'] === 'support') {
+        header('Location: support-dashboard.php');
+        exit;
+    }
+
+    if ($_SESSION['role'] === 'student') {
+        header('Location: my-tickets.php');
+        exit;
+    }
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -20,6 +37,7 @@ require_once __DIR__ . '/../src/config/auth.php';
     <title>OpiskelijaHelpdesk</title>
 
     <link rel="stylesheet" href="css/style.css">
+    <script src="js/app.js" defer></script>
 </head>
 
 <body>
@@ -62,11 +80,11 @@ require_once __DIR__ . '/../src/config/auth.php';
 
                 <?php elseif ($_SESSION['role'] === 'admin'): ?>
 
-                    <a href="#">
+                    <a href="admin.php">
                         Hallinta
                     </a>
 
-                    <a href="#">
+                    <a href="admin.php#users">
                         Dashboard
                     </a>
 
@@ -193,9 +211,12 @@ require_once __DIR__ . '/../src/config/auth.php';
                     <h2>Ylläpitäjä</h2>
 
                     <p>
-                        Ylläpitäjän hallintanäkymä toteutetaan
-                        myöhemmässä issuessa.
+                        Hallitse käyttäjätilejä, käyttöoikeuksia ja tikettien kategorioita.
                     </p>
+
+                    <div class="hero-actions">
+                        <a href="admin.php" class="button">Avaa hallinta</a>
+                    </div>
 
                 </div>
 

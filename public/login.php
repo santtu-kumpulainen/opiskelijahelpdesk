@@ -19,31 +19,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (mb_strlen($email) > 255 || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = 'Tarkista sähköpostiosoitteen muoto.';
     } else {
+        $email = trim($emailInput);
+        $password = $passwordInput;
+        $emailValue = $emailInput;
 
-        $stmt = $pdo->prepare(
-            'SELECT id, name, email, password, role
-             FROM users
-             WHERE email = ?'
-        );
-
-        $stmt->execute([$email]);
-
-        $user = $stmt->fetch();
-
-        if ($user && password_verify($password, $user['password'])) {
-
-            session_regenerate_id(true);
-
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['user_name'] = $user['name'];
-            $_SESSION['user_email'] = $user['email'];
-            $_SESSION['role'] = $user['role'];
-
-            header('Location: index.php');
-            exit;
-
+        if ($email === '' || $password === '') {
+            $error = 'Täytä kaikki kentät.';
+        } elseif (mb_strlen($email) > 255) {
+            $error = 'Sähköpostiosoite on liian pitkä.';
         } else {
-            $error = 'Virheellinen sähköposti tai salasana.';
+
+            $stmt = $pdo->prepare(
+                'SELECT id, name, email, password, role
+                 FROM users
+                 WHERE email = ?'
+            );
+
+            $stmt->execute([$email]);
+
+            $user = $stmt->fetch();
+
+            if ($user && password_verify($password, $user['password'])) {
+
+                session_regenerate_id(true);
+
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['user_name'] = $user['name'];
+                $_SESSION['user_email'] = $user['email'];
+                $_SESSION['role'] = $user['role'];
+
+                $destination = match ($user['role']) {
+                    'admin' => 'admin.php',
+                    'support' => 'support-dashboard.php',
+                    default => 'my-tickets.php'
+                };
+
+                header('Location: ' . $destination);
+                exit;
+
+            } else {
+                $error = 'Virheellinen sähköposti tai salasana.';
+            }
         }
     }
 }
@@ -57,22 +73,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kirjautuminen - OpiskelijaHelpdesk</title>
     <link rel="stylesheet" href="css/style.css">
+    <script src="js/app.js" defer></script>
 </head>
 
 <body>
 
-    <main>
+    <header class="site-header">
+        <div class="container navbar">
+            <a href="index.php" class="logo">OpiskelijaHelpdesk</a>
+            <nav class="nav-links" aria-label="Päänavigaatio">
+                <a href="index.php">Etusivu</a>
+                <a href="register.php">Rekisteröidy</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="auth-main">
+        <div class="container">
+            <section class="form-section auth-card">
         <h1>Kirjaudu sisään</h1>
 
         <?php if ($error): ?>
-            <p class="error">
+            <p class="form-error">
                 <?= htmlspecialchars($error) ?>
             </p>
         <?php endif; ?>
 
         <form method="POST">
 
-            <div>
+            <div class="form-group">
                 <label for="email">Sähköposti</label>
                 <input
                     type="email"
@@ -84,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 >
             </div>
 
-            <div>
+            <div class="form-group">
                 <label for="password">Salasana</label>
                 <input
                     type="password"
@@ -98,12 +127,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         </form>
 
-        <p>
+        <p class="auth-switch">
             Ei vielä käyttäjää?
             <a href="register.php">Rekisteröidy</a>
         </p>
 
+            </section>
+        </div>
     </main>
+
+    <footer class="site-footer">
+        <div class="container"><p>OpiskelijaHelpdesk</p></div>
+    </footer>
 
 </body>
 </html>

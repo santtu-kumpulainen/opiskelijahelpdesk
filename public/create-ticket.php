@@ -132,6 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Uusi tiketti - OpiskelijaHelpdesk</title>
 
     <link rel="stylesheet" href="css/style.css">
+    <script src="js/app.js" defer></script>
 
 </head>
 

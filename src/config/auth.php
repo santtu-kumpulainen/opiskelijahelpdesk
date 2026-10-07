@@ -11,6 +11,27 @@ function requireLogin(): void
         header('Location: login.php');
         exit;
     }
+
+    global $pdo;
+
+    if (isset($pdo) && $pdo instanceof PDO) {
+        $stmt = $pdo->prepare(
+            'SELECT role
+             FROM users
+             WHERE id = ?'
+        );
+        $stmt->execute([$_SESSION['user_id']]);
+        $currentRole = $stmt->fetchColumn();
+
+        if ($currentRole === false) {
+            session_unset();
+            session_destroy();
+            header('Location: login.php');
+            exit;
+        }
+
+        $_SESSION['role'] = $currentRole;
+    }
 }
 
 function hasRole(string $role): bool
